@@ -1,5 +1,7 @@
 ---
 extends: default
+ignore: |
+  **dist**
 rules:
   line-length:
     max: 400
