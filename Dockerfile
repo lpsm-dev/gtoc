@@ -1,32 +1,15 @@
-# Use the official Golang image as the base image
 FROM golang:1.24-alpine AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
-
-# Copy the go.mod and go.sum files
-COPY go.mod go.sum ./
-
-# Download the Go module dependencies
-RUN go mod download
-
-# Copy the rest of the application source code
 COPY . .
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -o /gtoc
 
-# Build the application
-RUN go build -o gtoc main.go
+FROM alpine:3.18
 
-# Use a minimal base image for the final image
-FROM alpine:latest
+RUN apk add --no-cache git
 
-# Set the working directory inside the container
-WORKDIR /root/
+WORKDIR /app
+COPY --from=builder /gtoc /usr/local/bin/gtoc
 
-# Copy the built binary from the builder stage
-COPY --from=builder /app/gtoc .
-
-# Set the entrypoint for the container
-ENTRYPOINT ["./gtoc"]
-
-# Default command to run when the container starts
-CMD ["--help"]
+ENTRYPOINT ["gtoc"]
