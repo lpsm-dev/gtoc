@@ -13,12 +13,6 @@ vars:
     sh: go env GOPATH
 
 tasks:
-  default:
-    desc: Display available tasks
-    cmds:
-      - task -l
-    silent: true
-
   build:
     desc: Build the binary
     cmds:
@@ -144,7 +138,7 @@ tasks:
           echo "Installing goreleaser..."
           go install github.com/goreleaser/goreleaser@latest
         fi
-      - task mod:tidy
+      - task: mod:tidy
 
   all:
     desc: Run all checks and build
