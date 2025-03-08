@@ -21,7 +21,7 @@ func GetRepositoryRoot() (string, error) {
 func IsIgnored(path string) (bool, error) {
 	cmd := exec.Command("git", "check-ignore", "-q", path)
 	err := cmd.Run()
-	
+
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			// Exit code 1 means the file is not ignored
@@ -31,7 +31,7 @@ func IsIgnored(path string) (bool, error) {
 		}
 		return false, err
 	}
-	
+
 	// Exit code 0 means the file is ignored
 	return true, nil
 }
@@ -40,17 +40,7 @@ func IsIgnored(path string) (bool, error) {
 func ListMarkdownFiles(repoRoot string, pattern string, excludePaths []string) ([]string, error) {
 	var files []string
 
-	// Check if the pattern contains a directory
-	var searchDir string
-	if strings.Contains(pattern, "/") {
-		parts := strings.Split(pattern, "/")
-		searchDir = filepath.Join(repoRoot, parts[0])
-		pattern = strings.Join(parts[1:], "/")
-	} else {
-		searchDir = repoRoot
-	}
-
-	err := filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(repoRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -61,9 +51,11 @@ func ListMarkdownFiles(repoRoot string, pattern string, excludePaths []string) (
 		}
 
 		// Check if file matches pattern
-		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+		matched, err := filepath.Match(pattern, path)
+		if err != nil {
 			return err
-		} else if !matched {
+		}
+		if !matched {
 			return nil
 		}
 
@@ -96,4 +88,3 @@ func ListMarkdownFiles(repoRoot string, pattern string, excludePaths []string) (
 
 	return files, err
 }
-

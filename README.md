@@ -1,104 +1,186 @@
-GTOC is a CLI tool that generates a hierarchical index of markdown files in your Git repository and updates a specified markdown file with the generated index. It respects `.gitignore` rules and provides various customization options.
+# gtoc - Git Table of Contents Generator
 
-## Summary
+<div align="center">
 
-<!-- START_GTOC -->
+![gtoc logo](/placeholder.svg?height=150&width=150)
 
-<!-- END_GTOC -->
+**Generate beautiful documentation indexes for your Git repositories**
 
-## Features
+[![Go Report Card](https://goreportcard.com/badge/github.com/lpsm-dev/gtoc)](https://goreportcard.com/report/github.com/lpsm-dev/gtoc)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-- Generate a hierarchical index of markdown files in your Git repository.
-- Update a specified markdown file with the generated index.
-- Respects `.gitignore` rules.
-- Customizable directory depth and file patterns.
-- Option to exclude specific paths.
-- Dry-run mode to preview changes without writing.
+</div>
 
-## Installation
+## 📖 Overview
 
-To install GTOC, you need to have Go installed on your machine. Then, you can install GTOC using the following command:
+`gtoc` is a command-line tool that automatically generates a hierarchical index of markdown files in your Git repository. It helps maintain organized documentation by creating and updating a table of contents in your README or other markdown files.
 
-```sh
-go install github.com/lpsm-dev/gtoc@latest
-```
-
-## Usage
-
-GTOC provides a `generate` command to generate and update the markdown index. Below are some examples of how to use it:
-
-### Basic Usage
-
-Generate a markdown index and update the `README.md` file:
-
-```sh
-gtoc generate --file README.md
-```
-
-### Custom Depth and Pattern
-
-Generate a markdown index with a maximum directory depth of 2 and update the `docs/index.md` file:
-
-```sh
-gtoc generate --file docs/index.md --depth 2 --pattern "docs/**/*.md"
-```
-
-### Exclude Paths
-
-Generate a markdown index and exclude specific paths:
-
-```sh
-gtoc generate --file README.md --exclude "docs/exclude-this.md,docs/exclude-that.md"
-```
-
-### Dry-Run Mode
-
-Preview the changes without writing to the file:
-
-```sh
-gtoc generate --file README.md --dry-run
-```
-
-## Command-Line Options
-
-- `--file`: Path to the markdown file to update (required).
-- `--depth`: Maximum directory depth (0 for unlimited).
-- `--pattern`: Glob pattern to filter markdown files (default: `**/*.md`).
-- `--exclude`: Comma-separated list of paths to exclude.
-- `--dry-run`: Preview changes without writing.
-
-## Example
-
-Here is an example of how the generated index might look in your `README.md` file:
-
-```md
 <!-- START_GTOC -->
 
 # Documentation Index
 
-## docs
+## Features
 
-- [Introduction](docs/introduction.md)
-- [Getting Started](docs/getting-started.md)
-- [API Reference](docs/api-reference.md)
-
-## guides
-
-- [User Guide](guides/user-guide.md)
-- [Developer Guide](guides/developer-guide.md)
+- Automatically scans your Git repository for markdown files
+- Generates a hierarchical index based on directory structure
+- Extracts titles from H1 headers in each file
+- Updates a specified markdown file with the generated index
+- Respects `.gitignore` rules
+- Customizable depth, patterns, and exclusions
 
 <!-- END_GTOC -->
-```
 
-## Contributing
+## 🚀 Installation
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue if you encounter any problems or have suggestions for improvements.
+### Using Go
 
-## License
+\`\`\`bash
+go install github.com/lpsm-dev/gtoc@latest
+\`\`\`
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+### From Source
 
-## Acknowledgements
+\`\`\`bash
+git clone https://github.com/lpsm-dev/gtoc.git
+cd gtoc
+go build
+\`\`\`
 
-- [Cobra](https://github.com/spf13/cobra) - A library for creating powerful modern CLI applications.
-- [Go](https://golang.org) - The Go programming language.
+## 🔧 Usage
+
+The basic command structure is:
+
+\`\`\`bash
+gtoc generate [file] [flags]
+\`\`\`
+
+You can specify the file either as the first argument or using the `--file` flag.
+
+### Examples
+
+Generate an index for your README.md:
+
+\`\`\`bash
+gtoc generate README.md
+\`\`\`
+
+Or using the flag:
+
+\`\`\`bash
+gtoc generate --file README.md
+\`\`\`
+
+Generate an index for a specific documentation file with depth limit:
+
+\`\`\`bash
+gtoc generate docs/index.md --depth 2 --pattern "docs/\*_/_.md"
+\`\`\`
+
+Preview changes without writing to the file:
+
+\`\`\`bash
+gtoc generate README.md --dry-run
+\`\`\`
+
+Exclude specific paths:
+
+\`\`\`bash
+gtoc generate README.md --exclude "vendor/_,node_modules/_"
+\`\`\`
+
+### Available Flags
+
+| Flag        | Description                                                                   | Default   |
+| ----------- | ----------------------------------------------------------------------------- | --------- |
+| `--file`    | Path to the markdown file to update (can also be specified as first argument) | -         |
+| `--depth`   | Maximum directory depth (0 for unlimited)                                     | 0         |
+| `--pattern` | Glob pattern to filter markdown files                                         | `**/*.md` |
+| `--exclude` | Comma-separated list of paths to exclude                                      | -         |
+| `--dry-run` | Preview changes without writing                                               | `false`   |
+
+## 📋 How It Works
+
+1. `gtoc` finds the Git repository root
+2. It scans for markdown files matching your pattern
+3. It extracts titles from H1 headers in each file
+4. It generates a hierarchical index based on directory structure
+5. It updates your specified file with the index between special markers:
+
+\`\`\`markdown
+
+<!-- START_GTOC -->
+
+# Documentation Index
+
+...
+
+<!-- END_GTOC -->
+
+\`\`\`
+
+If you run the tool again, it will update the existing index section while preserving the rest of the file content.
+
+## 📊 Example Output
+
+Before:
+\`\`\`markdown
+
+# My Project
+
+Some description here.
+
+## Getting Started
+
+...
+\`\`\`
+
+After running `gtoc generate README.md`:
+\`\`\`markdown
+
+# My Project
+
+<!-- START_GTOC -->
+
+# Documentation Index
+
+- [Installation Guide](docs/installation.md)
+- [API Reference](docs/api.md)
+
+## Examples
+
+- [Basic Example](examples/basic.md)
+- [Advanced Example](examples/advanced.md)
+
+<!-- END_GTOC -->
+
+Some description here.
+
+## Getting Started
+
+...
+\`\`\`
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Cobra](https://github.com/spf13/cobra) - A Commander for modern Go CLI interactions
+- All contributors who help improve this tool
+
+---
+
+<div align="center">
+Made with ❤️ by <a href="https://github.com/lpsm-dev">LPSM</a>
+</div>
