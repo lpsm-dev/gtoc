@@ -7,7 +7,7 @@
 
 Hello Human 👽! Bem-vindo ao meu repositório 👋
 
-<img src="https://github.com/lpsm-dev/lpsm-dev/blob/63ad476e77006a2924e16622bd005f4784ab9fb4/.github/assets/dotfiles-new.png" width="350"/>
+<img src="https://github.com/lpsm-dev/lpsm-dev/blob/5cf57b68283a857a105430d0d6c9290ee657a012/.github/assets/go-cli.png" width="350"/>
 
 **Generate beautiful documentation indexes for your Git repositories**
 
