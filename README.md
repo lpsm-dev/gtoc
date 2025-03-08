@@ -25,6 +25,19 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 > **AVISO**: Esse repositório está em constante evolução. Se você encontrar algum erro ou tiver sugestões, por favor, abra uma [issue](https://github.com/lpsm-dev/dotfiles/issues/new/choose) ou envie um [pull request](https://github.com/lpsm-dev/dotfiles/pulls).
 
 <!-- START_TABLE_OF_CONTENTS -->
+
+# Table of Contents
+
+- [Visão Geral](#viso-geral)
+  - [Objetivo](#objetivo)
+  - [Contexto e Motivação](#contexto-e-motivao)
+- [Contribuição](#contribuio)
+- [Versionamento](#versionamento)
+- [Troubleshooting](#troubleshooting)
+- [Show your support](#show-your-support)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- END_TABLE_OF_CONTENTS -->
 
 # Visão Geral
@@ -75,4 +88,5 @@ Feito com 💜 pelo **Time de DevOps** :wave: inspirado no [readme-md-generator]
 </div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- END_DOCS -->
