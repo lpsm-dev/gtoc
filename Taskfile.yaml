@@ -11,6 +11,7 @@ vars:
   PATH_ERROR: is not installed or correctly configured in PATH.
 
 includes:
+  go: .github/taskfiles/go.yaml
   precommit: .github/taskfiles/pre-commit.yaml
 
 tasks:

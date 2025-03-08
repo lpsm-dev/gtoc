@@ -1,0 +1,93 @@
+---
+version: "3"
+
+vars:
+  BINDIR: "{{.PWD}}/bin"
+  BINNAME: "gtoc"
+  CLIENT_VERSION: '{{sh "git describe --tags --abbrev=0"}}'
+  MAIN: "{{.PWD}}/cmd/gtoc/main.go"
+  GIT_BRANCH: '{{sh "git rev-parse --abbrev-ref HEAD"}}'
+  GIT_COMMIT: '{{sh "git rev-parse HEAD"}}'
+  GIT_SHORT_COMMIT: '{{sh "git rev-parse --short HEAD"}}'
+  GIT_TAG: '{{sh "if [ -z \"$(git status --porcelain)\" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi"}}'
+  GIT_TREE_STATE: '{{sh "if [ -z \"$(git status --porcelain)\" ]; then echo \"clean\" ; else echo \"dirty\"; fi"}}'
+  GO_VERSION: '{{sh "go version"}}'
+  GOPATH: '{{sh "go env GOPATH"}}'
+  GOOS: '{{sh "go env GOOS"}}'
+  GOARCH: '{{sh "go env GOARCH"}}'
+  GOBIN: '{{if eq (sh "go env GOBIN") ""}}{{sh "go env GOPATH"}}/bin{{else}}{{sh "go env GOBIN"}}{{end}}'
+  GOLANGCILINT_VERSION: "v1.46.2"
+  BUILD_FLAG: "-race"
+  GOBUILD: "CGO_ENABLED=1 GOOS={{.GOOS}} GOARCH={{.GOARCH}} go build {{.BUILD_FLAG}}"
+  LDFLAGS: |
+    -w -s
+    -X "github.com/lpsm-dev/gtoc/internal/version.cliVersion={{.CLIENT_VERSION}}"
+    -X "github.com/lpsm-dev/gtoc/internal/version.builtBy=taskfile"
+    -X "github.com/lpsm-dev/gtoc/internal/version.commit={{.GIT_COMMIT}}"
+    -X "github.com/lpsm-dev/gtoc/internal/version.commitShort={{.GIT_SHORT_COMMIT}}"
+    -X "github.com/lpsm-dev/gtoc/internal/version.commitBranch={{.GIT_BRANCH}}"
+    -X "github.com/lpsm-dev/gtoc/internal/version.goVersion={{.GO_VERSION}}"
+
+tasks:
+  default:
+    cmds:
+      - task: help
+
+  setup:
+    desc: "Setup the project"
+    cmds:
+      - echo "==> Setup..."
+      - go mod download
+      - go mod tidy
+      - go generate -v ./...
+      - echo ""
+
+  build:
+    desc: "Build the project"
+    cmds:
+      - echo "==> Building..."
+      - '{{.GOBUILD}} -o {{.BINDIR}}/{{.BINNAME}} -ldflags "{{.LDFLAGS}}" {{.MAIN}}'
+      - echo ""
+
+  install:
+    desc: "Install the project"
+    cmds:
+      - echo "==> Installing..."
+      - go install -x {{.MAIN}}
+      - echo ""
+
+  clean:
+    desc: "Clean the project"
+    cmds:
+      - echo "==> Cleaning..."
+      - go clean -x -i {{.MAIN}}
+      - rm -rf ./bin/* ./vendor ./dist *.tar.gz
+      - echo ""
+
+  lint:
+    desc: "Run golangci-lint"
+    cmds:
+      - task: golangci
+      - golangci-lint run ./...
+
+  verify-goreleaser:
+    desc: "Verify if goreleaser is installed"
+    cmds:
+      - |
+        if ! command -v goreleaser &> /dev/null; then
+          echo "No goreleaser in PATH, consider installing it from https://goreleaser.com/install"
+          exit 1
+        fi
+      - goreleaser --version
+
+  snapshot:
+    desc: "Create a snapshot release"
+    cmds:
+      - task: verify-goreleaser
+      - goreleaser --snapshot --skip-publish --rm-dist
+
+  release:
+    desc: "Create a release"
+    cmds:
+      - task: verify-goreleaser
+      - goreleaser release --rm-dist --debug
