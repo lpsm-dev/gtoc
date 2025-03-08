@@ -66,7 +66,7 @@ gtoc generate --file README.md --dry-run
 Here is an example of how the generated index might look in your `README.md` file:
 
 ```md
-<!-- START_MDTOC -->
+<!-- START_GTOC -->
 
 # Documentation Index
 
@@ -81,7 +81,7 @@ Here is an example of how the generated index might look in your `README.md` fil
 - [User Guide](guides/user-guide.md)
 - [Developer Guide](guides/developer-guide.md)
 
-<!-- END_MDTOC -->
+<!-- END_GTOC -->
 ```
 
 ## Contributing
