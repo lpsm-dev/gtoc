@@ -19,7 +19,8 @@ builds:
     binary: gtoc
 
 archives:
-  - format: tar.gz
+  - formats:
+      - tar.gz
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -29,16 +30,14 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
     files:
       - LICENSE
       - README.md
 
 checksum:
   name_template: "checksums.txt"
-
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc
@@ -50,17 +49,3 @@ changelog:
       - "^chore:"
       - Merge pull request
       - Merge branch
-
-dockers:
-  - image_templates:
-      - "lpsm/gtoc:latest"
-      - "lpsm/gtoc:{{ .Version }}"
-      - "lpsm/gtoc:{{ .Major }}"
-      - "lpsm/gtoc:{{ .Major }}.{{ .Minor }}"
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
