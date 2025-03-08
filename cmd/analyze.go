@@ -20,7 +20,7 @@ var analyzeCmd = &cobra.Command{
 	Short: "Analyze and update README.md with best practices",
 	Long: `Analyze the README.md file and add best practices elements such as:
 - <!-- BEGIN_DOCS --> and <a name="readme-top"></a> in the header
-- <p align="right">(<a href="#readme-top">back to top</a>)</p> at the end of each main heading (#)`,
+- <p align="right">(<a href="#readme-top">back to top</a>)</p> at the end of each main heading (#) section`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if readmePath == "" {
 			readmePath = "README.md"
@@ -44,33 +44,81 @@ var analyzeCmd = &cobra.Command{
 		}
 
 		contentStr := string(content)
-		lines := strings.Split(contentStr, "\n")
 
-		// Check and add header elements
+		// Add BEGIN_DOCS marker if not present
 		if !strings.Contains(contentStr, "<!-- BEGIN_DOCS -->") {
-			lines = append([]string{"<!-- BEGIN_DOCS -->", "<a name=\"readme-top\"></a>", ""}, lines...)
+			contentStr = "<!-- BEGIN_DOCS -->\n<a name=\"readme-top\"></a>\n\n" + contentStr
 		}
 
-		// Add back to top link at the end of each main heading
-		headingRegex := regexp.MustCompile(`^#\s+(.+)$`)
-		for i, line := range lines {
-			if headingRegex.MatchString(line) {
-				headingText := headingRegex.FindStringSubmatch(line)[1]
-				// Skip the "Table of Contents" heading
-				if strings.ToLower(headingText) == "table of contents" {
-					continue
+		// Add END_DOCS marker if not present
+		if !strings.Contains(contentStr, "<!-- END_DOCS -->") {
+			contentStr = contentStr + "\n<!-- END_DOCS -->"
+		}
+
+		// Find H1 headings and add "back to top" links
+		h1Regex := regexp.MustCompile(`(?m)^#\s+(.+)$`)
+		backToTopLink := "<p align=\"right\">(<a href=\"#readme-top\">back to top</a>)</p>"
+
+		// Find all H1 sections (from one H1 to the next H1 or end)
+		sections := h1Regex.FindAllStringIndex(contentStr, -1)
+
+		if len(sections) > 0 {
+			// Create a new content string with back to top links
+			var newContentBuilder strings.Builder
+			lastPos := 0
+
+			for i, match := range sections {
+				start := match[0]
+				end := len(contentStr)
+
+				// If not the last section, end is the start of the next section
+				if i < len(sections)-1 {
+					end = sections[i+1][0]
 				}
-				// Check if the next line is the back to top link
-				if i+1 < len(lines) && strings.Contains(lines[i+1], "<p align=\"right\">(<a href=\"#readme-top\">back to top</a>)</p>") {
-					continue
+
+				sectionText := contentStr[start:end]
+
+				// Add content before this section if not the first section
+				if i > 0 {
+					// Only add the "back to top" link if it's not already there
+					prevSectionText := contentStr[lastPos:start]
+					if !strings.Contains(prevSectionText, backToTopLink) {
+						// Ensure there's a blank line before the link
+						if !strings.HasSuffix(prevSectionText, "\n\n") && !strings.HasSuffix(prevSectionText, "\n\r\n") {
+							if strings.HasSuffix(prevSectionText, "\n") {
+								newContentBuilder.WriteString("\n")
+							} else {
+								newContentBuilder.WriteString("\n\n")
+							}
+						}
+						newContentBuilder.WriteString(backToTopLink + "\n\n")
+					}
 				}
-				lines = append(lines[:i+1], append([]string{"<p align=\"right\">(<a href=\"#readme-top\">back to top</a>)</p>"}, lines[i+1:]...)...)
+
+				// Add the current section
+				newContentBuilder.WriteString(sectionText)
+				lastPos = end
 			}
+
+			// Add back to top link after the last section if needed
+			lastSection := contentStr[lastPos:]
+			if !strings.Contains(lastSection, backToTopLink) && !strings.HasSuffix(lastSection, "<!-- END_DOCS -->") {
+				if !strings.HasSuffix(lastSection, "\n\n") && !strings.HasSuffix(lastSection, "\n\r\n") {
+					if strings.HasSuffix(lastSection, "\n") {
+						newContentBuilder.WriteString("\n")
+					} else {
+						newContentBuilder.WriteString("\n\n")
+					}
+				}
+				newContentBuilder.WriteString(backToTopLink + "\n\n")
+			}
+
+			// Update the content string
+			contentStr = newContentBuilder.String()
 		}
 
 		// Write the updated content back to the file
-		newContent := strings.Join(lines, "\n")
-		if err := os.WriteFile(absFilePath, []byte(newContent), 0644); err != nil {
+		if err := os.WriteFile(absFilePath, []byte(contentStr), 0644); err != nil {
 			return fmt.Errorf("failed to write file: %w", err)
 		}
 
