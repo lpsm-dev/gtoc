@@ -1,9 +1,9 @@
 <!-- BEGIN_DOCS -->
 <div align="center">
 
-<a name="readme-top"></a>
-
 [🇺🇸 English Version](README_en.md)
+
+<a name="readme-top"></a>
 
 Hello Human 👽! Bem-vindo ao meu repositório 👋
 
@@ -25,29 +25,19 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 > **AVISO**: Esse repositório está em constante evolução. Se você encontrar algum erro ou tiver sugestões, por favor, abra uma [issue](https://github.com/lpsm-dev/dotfiles/issues/new/choose) ou envie um [pull request](https://github.com/lpsm-dev/dotfiles/pulls).
 
 <!-- START_TABLE_OF_CONTENTS -->
-
-# Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [Visão Geral](#viso-geral)
-  - [Objetivo](#objetivo)
-  - [Contexto e Motivação](#contexto-e-motivao)
-- [Contribuição](#contribuio)
-- [Versionamento](#versionamento)
-- [Troubleshooting](#troubleshooting)
-- [Show your support](#show-your-support)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- END_TABLE_OF_CONTENTS -->
 
 # Visão Geral
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Objetivo
 
 `gtoc` is a command-line tool that automatically generates a hierarchical index of markdown files in your Git repository. It helps maintain organized documentation by creating and updating a table of contents in your README or other markdown files.
 
 ## Contexto e Motivação
+
+xxx
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
