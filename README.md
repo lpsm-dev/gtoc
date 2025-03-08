@@ -9,7 +9,7 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 
 <img src="https://github.com/lpsm-dev/lpsm-dev/blob/5cf57b68283a857a105430d0d6c9290ee657a012/.github/assets/go-cli.png" width="350"/>
 
-**Generate beautiful documentation indexes for your Git repositories**
+**Gere uma bela documentação para seus repositórios Git**
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/lpsm-dev/gtoc)](https://goreportcard.com/report/github.com/lpsm-dev/gtoc)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](https://www.conventionalcommits.org/en/v1.0.0/)
