@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	indexStartMarker = "<!-- START_GTOC -->"
-	indexEndMarker   = "<!-- END_GTOC -->"
+	indexStartMarker = "<!-- START_TABLE_OF_CONTENTS -->"
+	indexEndMarker   = "<!-- END_TABLE_OF_CONTENTS -->"
 )
 
 // Generator represents a markdown table of contents generator
@@ -54,7 +54,8 @@ func (g *Generator) Generate() (string, error) {
 	// Generate TOC from headings
 	g.generateTOC(&sb, headings, 0)
 
-	sb.WriteString("\n" + indexEndMarker + "\n")
+	sb.WriteString("\n<p align=\"right\">(<a href=\"#readme-top\">back to top</a>)</p>\n")
+	sb.WriteString("\n" + indexEndMarker)
 	return sb.String(), nil
 }
 
