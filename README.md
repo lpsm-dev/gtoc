@@ -11,12 +11,14 @@
 
 ## Table of Contents
 
-- [📖 Overview](#overview)
-- [🤝 Contributing](#contributing)
-- [📜 License](#license)
-- [🙏 Acknowledgments](#acknowledgments)
+  - [Table of Contents](#table-of-contents)
+  - [📖 Overview](#overview)
+  - [🤝 Contributing](#contributing)
+  - [📜 License](#license)
+  - [🙏 Acknowledgments](#acknowledgments)
 
 <!-- END_GTOC -->
+
 
 ## 📖 Overview
 
