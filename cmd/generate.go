@@ -6,17 +6,17 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lpsm-dev/mdtoc/internal/generator"
-	"github.com/lpsm-dev/mdtoc/internal/git"
+	"github.com/lpsm-dev/gtoc/internal/generator"
+	"github.com/lpsm-dev/gtoc/internal/git"
 	"github.com/spf13/cobra"
 )
 
 var (
-	filePath    string
-	depth       int
-	pattern     string
+	filePath     string
+	depth        int
+	pattern      string
 	excludePaths string
-	dryRun      bool
+	dryRun       bool
 )
 
 // generateCmd represents the generate command
@@ -27,8 +27,8 @@ var generateCmd = &cobra.Command{
 and update the specified markdown file with the generated index.
 
 Example:
-  mdtoc generate --file README.md
-  mdtoc generate --file docs/index.md --depth 2 --pattern "docs/**/*.md"`,
+  gtoc generate --file README.md
+  gtoc generate --file docs/index.md --depth 2 --pattern "docs/**/*.md"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if filePath == "" {
 			return fmt.Errorf("file path is required")

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lpsm-dev/mdtoc/cmd"
+	"github.com/lpsm-dev/gtoc/cmd"
 )
 
 func main() {

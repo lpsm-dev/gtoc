@@ -1,4 +1,4 @@
-module github.com/lpsm-dev/mdtoc
+module github.com/lpsm-dev/gtoc
 
 go 1.20
 

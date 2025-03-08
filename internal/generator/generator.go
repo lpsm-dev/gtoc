@@ -9,12 +9,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lpsm-dev/mdtoc/internal/git"
+	"github.com/lpsm-dev/gtoc/internal/git"
 )
 
 const (
-	indexStartMarker = "<!-- START_MDTOC -->"
-	indexEndMarker   = "<!-- END_MDTOC -->"
+	indexStartMarker = "<!-- START_GTOC -->"
+	indexEndMarker   = "<!-- END_GTOC -->"
 )
 
 // Generator represents a markdown index generator
