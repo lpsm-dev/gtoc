@@ -49,7 +49,7 @@ func (g *Generator) Generate() (string, error) {
 	// Build the table of contents
 	var sb strings.Builder
 	sb.WriteString(indexStartMarker + "\n\n")
-	sb.WriteString("## Table of Contents\n\n")
+	sb.WriteString("# Table of Contents\n\n")
 
 	// Generate TOC from headings
 	g.generateTOC(&sb, headings, 0)
