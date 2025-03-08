@@ -3,7 +3,6 @@ package generator
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -124,7 +123,7 @@ func (g *Generator) generateTOC(sb *strings.Builder, headings []*Heading, level 
 // UpdateFile updates the target file with the generated table of contents
 func (g *Generator) UpdateFile(toc string) error {
 	// Read the file
-	content, err := ioutil.ReadFile(g.targetFile)
+	content, err := os.ReadFile(g.targetFile)
 	if err != nil {
 		return err
 	}
@@ -139,22 +138,12 @@ func (g *Generator) UpdateFile(toc string) error {
 		// Replace existing index
 		newContent = contentStr[:startIdx] + toc + contentStr[endIdx+len(indexEndMarker):]
 	} else {
-		// Add index after the first heading or at the beginning if no heading
-		firstHeadingRegex := regexp.MustCompile(`(?m)^#.*\n`)
-		loc := firstHeadingRegex.FindStringIndex(contentStr)
-
-		if loc != nil {
-			// Insert after the first heading and its newline
-			insertPos := loc[1]
-			newContent = contentStr[:insertPos] + "\n" + toc + contentStr[insertPos:]
-		} else {
-			// Add at the beginning
-			newContent = toc + "\n" + contentStr
-		}
+		// Add index at the beginning
+		newContent = toc + "\n" + contentStr
 	}
 
 	// Write the file
-	return ioutil.WriteFile(g.targetFile, []byte(newContent), 0644)
+	return os.WriteFile(g.targetFile, []byte(newContent), 0644)
 }
 
 // generateAnchor generates a GitHub-compatible anchor from heading text

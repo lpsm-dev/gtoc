@@ -7,6 +7,17 @@
 
 </div>
 
+<!-- START_GTOC -->
+
+## Table of Contents
+
+- [📖 Overview](#overview)
+- [🤝 Contributing](#contributing)
+- [📜 License](#license)
+- [🙏 Acknowledgments](#acknowledgments)
+
+<!-- END_GTOC -->
+
 ## 📖 Overview
 
 `gtoc` is a command-line tool that automatically generates a hierarchical index of markdown files in your Git repository. It helps maintain organized documentation by creating and updating a table of contents in your README or other markdown files.

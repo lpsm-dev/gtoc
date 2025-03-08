@@ -2,92 +2,155 @@
 version: "3"
 
 vars:
-  BINDIR: "{{.PWD}}/bin"
-  BINNAME: "gtoc"
-  CLIENT_VERSION: '{{sh "git describe --tags --abbrev=0"}}'
-  MAIN: "{{.PWD}}/cmd/gtoc/main.go"
-  GIT_BRANCH: '{{sh "git rev-parse --abbrev-ref HEAD"}}'
-  GIT_COMMIT: '{{sh "git rev-parse HEAD"}}'
-  GIT_SHORT_COMMIT: '{{sh "git rev-parse --short HEAD"}}'
-  GIT_TAG: '{{sh "if [ -z \"$(git status --porcelain)\" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi"}}'
-  GIT_TREE_STATE: '{{sh "if [ -z \"$(git status --porcelain)\" ]; then echo \"clean\" ; else echo \"dirty\"; fi"}}'
-  GO_VERSION: '{{sh "go version"}}'
-  GOPATH: '{{sh "go env GOPATH"}}'
-  GOOS: '{{sh "go env GOOS"}}'
-  GOARCH: '{{sh "go env GOARCH"}}'
-  GOBIN: '{{if eq (sh "go env GOBIN") ""}}{{sh "go env GOPATH"}}/bin{{else}}{{sh "go env GOBIN"}}{{end}}'
-  GOLANGCILINT_VERSION: "v1.46.2"
-  BUILD_FLAG: "-race"
-  GOBUILD: "CGO_ENABLED=1 GOOS={{.GOOS}} GOARCH={{.GOARCH}} go build {{.BUILD_FLAG}}"
-  LDFLAGS: |
-    -w -s
-    -X "github.com/lpsm-dev/gtoc/internal/version.cliVersion={{.CLIENT_VERSION}}"
-    -X "github.com/lpsm-dev/gtoc/internal/version.builtBy=taskfile"
-    -X "github.com/lpsm-dev/gtoc/internal/version.commit={{.GIT_COMMIT}}"
-    -X "github.com/lpsm-dev/gtoc/internal/version.commitShort={{.GIT_SHORT_COMMIT}}"
-    -X "github.com/lpsm-dev/gtoc/internal/version.commitBranch={{.GIT_BRANCH}}"
-    -X "github.com/lpsm-dev/gtoc/internal/version.goVersion={{.GO_VERSION}}"
+  BINARY_NAME: gtoc
+  MAIN_PACKAGE: .
+  VERSION:
+    sh: git describe --tags --always --dirty || echo "dev"
+  BUILD_FLAGS: -ldflags "-s -w -X github.com/lpsm-dev/gtoc/cmd.Version={{.VERSION}}"
+  BUILD_DIR: ./bin
+  COVERAGE_DIR: ./coverage
+  GOPATH:
+    sh: go env GOPATH
 
 tasks:
   default:
+    desc: Display available tasks
     cmds:
-      - task: help
-
-  setup:
-    desc: "Setup the project"
-    cmds:
-      - echo "==> Setup..."
-      - go mod download
-      - go mod tidy
-      - go generate -v ./...
-      - echo ""
+      - task -l
+    silent: true
 
   build:
-    desc: "Build the project"
+    desc: Build the binary
     cmds:
-      - echo "==> Building..."
-      - '{{.GOBUILD}} -o {{.BINDIR}}/{{.BINNAME}} -ldflags "{{.LDFLAGS}}" {{.MAIN}}'
-      - echo ""
+      - echo "Building {{.BINARY_NAME}} version {{.VERSION}}..."
+      - mkdir -p {{.BUILD_DIR}}
+      - go build {{.BUILD_FLAGS}} -o {{.BUILD_DIR}}/{{.BINARY_NAME}} {{.MAIN_PACKAGE}}
 
   install:
-    desc: "Install the project"
+    desc: Install the binary to GOPATH/bin
+    deps: [build]
     cmds:
-      - echo "==> Installing..."
-      - go install -x {{.MAIN}}
-      - echo ""
+      - echo "Installing {{.BINARY_NAME}} to {{.GOPATH}}/bin..."
+      - cp {{.BUILD_DIR}}/{{.BINARY_NAME}} {{.GOPATH}}/bin/
+
+  run:
+    desc: Run the application
+    deps: [build]
+    cmds:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}} {{.CLI_ARGS}}"
 
   clean:
-    desc: "Clean the project"
+    desc: Clean build artifacts
     cmds:
-      - echo "==> Cleaning..."
-      - go clean -x -i {{.MAIN}}
-      - rm -rf ./bin/* ./vendor ./dist *.tar.gz
-      - echo ""
+      - echo "Cleaning build artifacts..."
+      - rm -rf {{.BUILD_DIR}}
+      - rm -rf {{.COVERAGE_DIR}}
+
+  test:
+    desc: Run tests
+    cmds:
+      - echo "Running tests..."
+      - go test -v ./...
+
+  test:coverage:
+    desc: Run tests with coverage
+    cmds:
+      - echo "Running tests with coverage..."
+      - mkdir -p {{.COVERAGE_DIR}}
+      - go test -v -coverprofile={{.COVERAGE_DIR}}/coverage.out ./...
+      - go tool cover -html={{.COVERAGE_DIR}}/coverage.out -o {{.COVERAGE_DIR}}/coverage.html
+      - echo "Coverage report generated at {{.COVERAGE_DIR}}/coverage.html"
 
   lint:
-    desc: "Run golangci-lint"
+    desc: Run linters
     cmds:
-      - task: golangci
+      - echo "Running golangci-lint..."
       - golangci-lint run ./...
 
-  verify-goreleaser:
-    desc: "Verify if goreleaser is installed"
+  fmt:
+    desc: Format code
     cmds:
-      - |
-        if ! command -v goreleaser &> /dev/null; then
-          echo "No goreleaser in PATH, consider installing it from https://goreleaser.com/install"
-          exit 1
-        fi
-      - goreleaser --version
+      - echo "Formatting code..."
+      - go fmt ./...
 
-  snapshot:
-    desc: "Create a snapshot release"
+  vet:
+    desc: Run go vet
     cmds:
-      - task: verify-goreleaser
-      - goreleaser --snapshot --skip-publish --rm-dist
+      - echo "Running go vet..."
+      - go vet ./...
+
+  mod:tidy:
+    desc: Tidy go modules
+    cmds:
+      - echo "Tidying go modules..."
+      - go mod tidy
+
+  release:snapshot:
+    desc: Run goreleaser in snapshot mode
+    cmds:
+      - echo "Running goreleaser in snapshot mode..."
+      - goreleaser release --snapshot --clean
+
+  release:local:
+    desc: Run goreleaser in local mode
+    cmds:
+      - echo "Running goreleaser in local mode..."
+      - goreleaser release --skip=publish --clean
 
   release:
-    desc: "Create a release"
+    desc: Create a new release
     cmds:
-      - task: verify-goreleaser
-      - goreleaser release --rm-dist --debug
+      - echo "Creating a new release..."
+      - |
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "Working directory is clean"
+        else
+          echo "Working directory is not clean. Please commit or stash changes before releasing."
+          exit 1
+        fi
+      - |
+        if [ -z "{{.TAG}}" ]; then
+          echo "Please provide a tag name: task release TAG=v1.0.0"
+          exit 1
+        fi
+      - git tag -a {{.TAG}} -m "Release {{.TAG}}"
+      - git push origin {{.TAG}}
+      - echo "Tag {{.TAG}} pushed. GitHub Actions will handle the release process."
+
+  docker:build:
+    desc: Build Docker image
+    cmds:
+      - echo "Building Docker image..."
+      - docker build -t lpsm/{{.BINARY_NAME}}:latest .
+
+  docker:run:
+    desc: Run Docker image
+    deps: [docker:build]
+    cmds:
+      - echo "Running Docker image..."
+      - docker run --rm lpsm/{{.BINARY_NAME}}:latest {{.CLI_ARGS}}
+
+  setup:
+    desc: Setup development environment
+    cmds:
+      - echo "Setting up development environment..."
+      - |
+        if ! command -v golangci-lint &> /dev/null; then
+          echo "Installing golangci-lint..."
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+        fi
+      - |
+        if ! command -v goreleaser &> /dev/null; then
+          echo "Installing goreleaser..."
+          go install github.com/goreleaser/goreleaser@latest
+        fi
+      - task mod:tidy
+
+  all:
+    desc: Run all checks and build
+    cmds:
+      - task fmt
+      - task vet
+      - task lint
+      - task test
+      - task build

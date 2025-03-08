@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	filePath    string
-	depth       int
+	filePath     string
+	depth        int
 	excludePaths string
-	dryRun      bool
+	dryRun       bool
 )
 
 // generateCmd represents the generate command
