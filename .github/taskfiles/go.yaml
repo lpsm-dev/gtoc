@@ -149,8 +149,8 @@ tasks:
   all:
     desc: Run all checks and build
     cmds:
-      - task fmt
-      - task vet
-      - task lint
-      - task test
-      - task build
+      - task: fmt
+      - task: vet
+      - task: lint
+      - task: test
+      - task: build

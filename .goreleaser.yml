@@ -1,10 +1,7 @@
----
-# GoReleaser configuration for gtoc
-# Documentation at https://goreleaser.com
+version: 2
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
 
 builds:
@@ -23,7 +20,6 @@ builds:
 
 archives:
   - format: tar.gz
-    # Use this to change the archive name format
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -31,7 +27,6 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # Use zip for Windows archives
     format_overrides:
       - goos: windows
         format: zip
@@ -56,7 +51,6 @@ changelog:
       - Merge pull request
       - Merge branch
 
-# Docker image
 dockers:
   - image_templates:
       - "lpsm/gtoc:latest"

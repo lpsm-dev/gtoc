@@ -59,36 +59,36 @@ var analyzeCmd = &cobra.Command{
 
 		// Split content by H1 headings to process each section separately
 		matches := h1Regex.FindAllStringIndex(contentStr, -1)
-		
+
 		if len(matches) > 0 {
 			var newContent strings.Builder
-			
+
 			// Remove END_DOCS marker temporarily if it exists
 			contentWithoutEndDocs := contentStr
-			endDocsPosition := -1
+			var endDocsPosition int
 			if hasEndDocsMarker {
 				endDocsPosition = strings.LastIndex(contentStr, "<!-- END_DOCS -->")
 				contentWithoutEndDocs = contentStr[:endDocsPosition]
 			}
-			
+
 			// Add content before the first H1 heading
 			if matches[0][0] > 0 {
 				newContent.WriteString(contentWithoutEndDocs[:matches[0][0]])
 			}
-			
+
 			// Process each H1 section
 			for i, match := range matches {
 				start := match[0]
 				end := len(contentWithoutEndDocs)
-				
+
 				// If not the last section, end is the start of the next section
 				if i < len(matches)-1 {
 					end = matches[i+1][0]
 				}
-				
+
 				// Extract the section content
 				sectionContent := contentWithoutEndDocs[start:end]
-				
+
 				// Check if section already has a back to top link
 				if !strings.Contains(sectionContent, backToTopLink) {
 					// Get the heading line by finding the first newline after the heading
@@ -96,13 +96,13 @@ var analyzeCmd = &cobra.Command{
 					if firstNewline == -1 {
 						firstNewline = len(sectionContent)
 					}
-					
+
 					headingLine := sectionContent[:firstNewline+1]
 					contentAfterHeading := ""
 					if firstNewline+1 < len(sectionContent) {
 						contentAfterHeading = sectionContent[firstNewline+1:]
 					}
-					
+
 					// Add the heading followed by content and then back to top link
 					newContent.WriteString(headingLine)
 					if len(contentAfterHeading) > 0 {
@@ -116,7 +116,7 @@ var analyzeCmd = &cobra.Command{
 							}
 						}
 					}
-					
+
 					// Add the back to top link with a newline after
 					newContent.WriteString(backToTopLink)
 					newContent.WriteString("\n\n")
@@ -125,10 +125,10 @@ var analyzeCmd = &cobra.Command{
 					newContent.WriteString(sectionContent)
 				}
 			}
-			
+
 			// Add END_DOCS marker at the end
 			newContent.WriteString("<!-- END_DOCS -->\n")
-			
+
 			contentStr = newContent.String()
 		} else {
 			// If no H1 headings found, just ensure END_DOCS marker is present
