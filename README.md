@@ -1,5 +1,11 @@
 GTOC is a CLI tool that generates a hierarchical index of markdown files in your Git repository and updates a specified markdown file with the generated index. It respects `.gitignore` rules and provides various customization options.
 
+## Summary
+
+<!-- START_GTOC -->
+
+<!-- END_GTOC -->
+
 ## Features
 
 - Generate a hierarchical index of markdown files in your Git repository.
