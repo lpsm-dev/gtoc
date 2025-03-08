@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/lpsm-dev/gtoc/internal/git"
 )
 
 const (
@@ -17,106 +14,115 @@ const (
 	indexEndMarker   = "<!-- END_GTOC -->"
 )
 
-// Generator represents a markdown index generator
+// Generator represents a markdown table of contents generator
 type Generator struct {
-	repoRoot     string
 	targetFile   string
 	maxDepth     int
-	pattern      string
 	excludePaths []string
 }
 
+// Heading represents a markdown heading
+type Heading struct {
+	Level       int
+	Text        string
+	Anchor      string
+	Line        int
+	SubHeadings []*Heading
+}
+
 // NewGenerator creates a new Generator instance
-func NewGenerator(repoRoot, targetFile string, maxDepth int, pattern string, excludePaths []string) *Generator {
+func NewGenerator(targetFile string, maxDepth int, excludePaths []string) *Generator {
 	return &Generator{
-		repoRoot:     repoRoot,
 		targetFile:   targetFile,
 		maxDepth:     maxDepth,
-		pattern:      pattern,
 		excludePaths: excludePaths,
 	}
 }
 
-// Generate generates a markdown index
+// Generate generates a markdown table of contents
 func (g *Generator) Generate() (string, error) {
-	// Get all markdown files
-	files, err := git.ListMarkdownFiles(g.repoRoot, g.pattern, g.excludePaths)
+	// Parse the markdown file and extract headings
+	headings, err := g.parseHeadings()
 	if err != nil {
 		return "", err
 	}
 
-	// Filter out the target file
-	var filteredFiles []string
-	for _, file := range files {
-		if file != g.targetFile {
-			filteredFiles = append(filteredFiles, file)
-		}
-	}
-
-	// Build the index
+	// Build the table of contents
 	var sb strings.Builder
 	sb.WriteString(indexStartMarker + "\n\n")
-	sb.WriteString("# Documentation Index\n\n")
+	sb.WriteString("## Table of Contents\n\n")
 
-	// Group files by directory
-	filesByDir := make(map[string][]string)
-	for _, file := range filteredFiles {
-		relPath, err := filepath.Rel(g.repoRoot, file)
-		if err != nil {
-			return "", err
-		}
+	// Generate TOC from headings
+	g.generateTOC(&sb, headings, 0)
 
-		dir := filepath.Dir(relPath)
-		if dir == "." {
-			dir = ""
-		}
-
-		// Check depth
-		if g.maxDepth > 0 {
-			depth := len(strings.Split(dir, string(os.PathSeparator)))
-			if depth > g.maxDepth {
-				continue
-			}
-		}
-
-		filesByDir[dir] = append(filesByDir[dir], file)
-	}
-
-	// Sort directories
-	dirs := make([]string, 0, len(filesByDir))
-	for dir := range filesByDir {
-		dirs = append(dirs, dir)
-	}
-	// Sort dirs here if needed
-
-	// Generate index
-	for _, dir := range dirs {
-		if dir != "" {
-			sb.WriteString(fmt.Sprintf("## %s\n\n", dir))
-		}
-
-		for _, file := range filesByDir[dir] {
-			relPath, _ := filepath.Rel(g.repoRoot, file)
-			title, err := extractTitle(file)
-			if err != nil {
-				return "", err
-			}
-			if title == "" {
-				title = filepath.Base(file)
-			}
-
-			sb.WriteString(fmt.Sprintf("- [%s](%s)\n", title, relPath))
-		}
-
-		sb.WriteString("\n")
-	}
-
-	sb.WriteString(indexEndMarker + "\n")
+	sb.WriteString("\n" + indexEndMarker + "\n")
 	return sb.String(), nil
 }
 
-// UpdateFile updates the target file with the generated index
-func (g *Generator) UpdateFile(index string) error {
+// parseHeadings parses the markdown file and extracts headings
+func (g *Generator) parseHeadings() ([]*Heading, error) {
+	file, err := os.Open(g.targetFile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	headingRegex := regexp.MustCompile(`^(#{1,6})\s+(.+)$`)
+
+	var headings []*Heading
+	lineNum := 0
+
+	for scanner.Scan() {
+		lineNum++
+		line := scanner.Text()
+		matches := headingRegex.FindStringSubmatch(line)
+
+		if len(matches) > 2 {
+			level := len(matches[1])
+			text := matches[2]
+
+			// Skip headings deeper than maxDepth if specified
+			if g.maxDepth > 0 && level > g.maxDepth {
+				continue
+			}
+
+			heading := &Heading{
+				Level:  level,
+				Text:   text,
+				Anchor: generateAnchor(text),
+				Line:   lineNum,
+			}
+
+			headings = append(headings, heading)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return headings, nil
+}
+
+// generateTOC generates a table of contents from headings
+func (g *Generator) generateTOC(sb *strings.Builder, headings []*Heading, level int) {
+	for _, heading := range headings {
+		// Indent based on heading level
+		indent := strings.Repeat("  ", heading.Level-1)
+
+		// Generate TOC entry
+		sb.WriteString(fmt.Sprintf("%s- [%s](#%s)\n", indent, heading.Text, heading.Anchor))
+
+		// Process subheadings if any
+		if len(heading.SubHeadings) > 0 {
+			g.generateTOC(sb, heading.SubHeadings, level+1)
+		}
+	}
+}
+
+// UpdateFile updates the target file with the generated table of contents
+func (g *Generator) UpdateFile(toc string) error {
 	// Read the file
 	content, err := ioutil.ReadFile(g.targetFile)
 	if err != nil {
@@ -131,34 +137,44 @@ func (g *Generator) UpdateFile(index string) error {
 	var newContent string
 	if startIdx != -1 && endIdx != -1 && startIdx < endIdx {
 		// Replace existing index
-		newContent = contentStr[:startIdx] + index + contentStr[endIdx+len(indexEndMarker):]
+		newContent = contentStr[:startIdx] + toc + contentStr[endIdx+len(indexEndMarker):]
 	} else {
-		// Add index at the beginning of the file
-		newContent = index + "\n" + contentStr
+		// Add index after the first heading or at the beginning if no heading
+		firstHeadingRegex := regexp.MustCompile(`(?m)^#.*\n`)
+		loc := firstHeadingRegex.FindStringIndex(contentStr)
+
+		if loc != nil {
+			// Insert after the first heading and its newline
+			insertPos := loc[1]
+			newContent = contentStr[:insertPos] + "\n" + toc + contentStr[insertPos:]
+		} else {
+			// Add at the beginning
+			newContent = toc + "\n" + contentStr
+		}
 	}
 
 	// Write the file
 	return ioutil.WriteFile(g.targetFile, []byte(newContent), 0644)
 }
 
-// extractTitle extracts the title (H1) from a markdown file
-func extractTitle(filePath string) (string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
+// generateAnchor generates a GitHub-compatible anchor from heading text
+func generateAnchor(text string) string {
+	// Convert to lowercase
+	anchor := strings.ToLower(text)
 
-	scanner := bufio.NewScanner(file)
-	h1Regex := regexp.MustCompile(`^#\s+(.+)$`)
+	// Replace spaces with hyphens
+	anchor = strings.ReplaceAll(anchor, " ", "-")
 
-	for scanner.Scan() {
-		line := scanner.Text()
-		matches := h1Regex.FindStringSubmatch(line)
-		if len(matches) > 1 {
-			return matches[1], nil
-		}
-	}
+	// Remove any non-alphanumeric characters except hyphens
+	nonAlphanumericRegex := regexp.MustCompile(`[^a-z0-9-]`)
+	anchor = nonAlphanumericRegex.ReplaceAllString(anchor, "")
 
-	return "", scanner.Err()
+	// Replace multiple hyphens with a single hyphen
+	multipleHyphensRegex := regexp.MustCompile(`-+`)
+	anchor = multipleHyphensRegex.ReplaceAllString(anchor, "-")
+
+	// Remove leading and trailing hyphens
+	anchor = strings.Trim(anchor, "-")
+
+	return anchor
 }

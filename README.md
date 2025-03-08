@@ -1,8 +1,4 @@
-# gtoc - Git Table of Contents Generator
-
 <div align="center">
-
-![gtoc logo](/placeholder.svg?height=150&width=150)
 
 **Generate beautiful documentation indexes for your Git repositories**
 
@@ -10,8 +6,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 </div>
-
-## 📝 Summary
 
 ## 📖 Overview
 

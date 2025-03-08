@@ -7,11 +7,9 @@ import (
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "gtoc",
-	Short: "Generate a markdown index for your Git repository's documentation",
-	Long: `gtoc is a CLI tool that generates a hierarchical index of markdown files
-in your Git repository and updates a specified markdown file with the generated index.
-
-It respects .gitignore rules and provides various customization options.`,
+	Short: "Generate a table of contents for markdown files",
+	Long: `gtoc is a CLI tool that generates a table of contents based on the headings
+in a markdown file and updates the file with the generated table of contents.`,
 }
 
 func init() {

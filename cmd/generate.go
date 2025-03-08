@@ -7,37 +7,35 @@ import (
 	"strings"
 
 	"github.com/lpsm-dev/gtoc/internal/generator"
-	"github.com/lpsm-dev/gtoc/internal/git"
 	"github.com/spf13/cobra"
 )
 
 var (
-	filePath     string
-	depth        int
-	pattern      string
+	filePath    string
+	depth       int
 	excludePaths string
-	dryRun       bool
+	dryRun      bool
 )
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate [file]",
-	Short: "Generate a markdown index and update the specified file",
-	Long: `Generate a hierarchical index of markdown files in your Git repository
-and update the specified markdown file with the generated index.
+	Short: "Generate a table of contents for a markdown file",
+	Long: `Generate a table of contents based on the headings in a markdown file
+and update the file with the generated table of contents.
 
 Example:
   gtoc generate README.md
-  gtoc generate --file README.md
-  gtoc generate docs/index.md --depth 2 --pattern "docs/**/*.md"`,
+  gtoc generate --file docs/index.md
+  gtoc generate docs/index.md --depth 3`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// Check if file path is provided as a positional argument
-		if len(args) > 0 {
+		// Check if file is provided as positional argument
+		if len(args) > 0 && filePath == "" {
 			filePath = args[0]
 		}
 
 		if filePath == "" {
-			return fmt.Errorf("file path is required")
+			return fmt.Errorf("file path is required (provide it as an argument or with --file flag)")
 		}
 
 		// Convert file path to absolute path
@@ -51,12 +49,6 @@ Example:
 			return fmt.Errorf("file does not exist: %s", absFilePath)
 		}
 
-		// Get repository root
-		repoRoot, err := git.GetRepositoryRoot()
-		if err != nil {
-			return fmt.Errorf("failed to get repository root: %w", err)
-		}
-
 		// Parse exclude paths
 		excludeList := []string{}
 		if excludePaths != "" {
@@ -66,29 +58,27 @@ Example:
 			}
 		}
 
-		// Generate index
+		// Generate table of contents
 		gen := generator.NewGenerator(
-			repoRoot,
 			absFilePath,
 			depth,
-			pattern,
 			excludeList,
 		)
 
-		index, err := gen.Generate()
+		toc, err := gen.Generate()
 		if err != nil {
-			return fmt.Errorf("failed to generate index: %w", err)
+			return fmt.Errorf("failed to generate table of contents: %w", err)
 		}
 
 		// Update file
 		if dryRun {
-			fmt.Println("Dry run mode. The following index would be generated:")
-			fmt.Println(index)
+			fmt.Println("Dry run mode. The following table of contents would be generated:")
+			fmt.Println(toc)
 		} else {
-			if err := gen.UpdateFile(index); err != nil {
+			if err := gen.UpdateFile(toc); err != nil {
 				return fmt.Errorf("failed to update file: %w", err)
 			}
-			fmt.Printf("Successfully updated %s with the generated index\n", filePath)
+			fmt.Printf("Successfully updated %s with the generated table of contents\n", filePath)
 		}
 
 		return nil
@@ -96,9 +86,8 @@ Example:
 }
 
 func init() {
-	generateCmd.Flags().StringVar(&filePath, "file", "", "Path to the markdown file to update (required if not provided as positional argument)")
-	generateCmd.Flags().IntVar(&depth, "depth", 0, "Maximum directory depth (0 for unlimited)")
-	generateCmd.Flags().StringVar(&pattern, "pattern", "**/*.md", "Glob pattern to filter markdown files")
-	generateCmd.Flags().StringVar(&excludePaths, "exclude", "", "Comma-separated list of paths to exclude")
+	generateCmd.Flags().StringVar(&filePath, "file", "", "Path to the markdown file to update")
+	generateCmd.Flags().IntVar(&depth, "depth", 0, "Maximum heading depth (0 for unlimited)")
+	generateCmd.Flags().StringVar(&excludePaths, "exclude", "", "Comma-separated list of heading patterns to exclude")
 	generateCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview changes without writing")
 }
