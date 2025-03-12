@@ -135,4 +135,67 @@ Content for the third heading.
 			t.Errorf("Generated TOC doesn't contain expected entry: %s", entry)
 		}
 	}
+}
+
+func TestGenerateAnchor(t *testing.T) {
+	tests := []struct {
+		name     string
+		text     string
+		expected string
+	}{
+		{
+			name:     "Simple text",
+			text:     "Simple Heading",
+			expected: "simple-heading",
+		},
+		{
+			name:     "Text with special characters",
+			text:     "Heading with $pecial Ch@racters!!!",
+			expected: "heading-with-pecial-chracters",
+		},
+		{
+			name:     "Text with multiple spaces",
+			text:     "Heading   with   multiple   spaces",
+			expected: "heading-with-multiple-spaces",
+		},
+		{
+			name:     "Text with punctuation",
+			text:     "Heading, with: punctuation; marks!",
+			expected: "heading-with-punctuation-marks",
+		},
+		{
+			name:     "Text with leading and trailing spaces",
+			text:     "  Heading with spaces  ",
+			expected: "heading-with-spaces",
+		},
+		{
+			name:     "Text with numbers",
+			text:     "Heading 123",
+			expected: "heading-123",
+		},
+		{
+			name:     "Text with hyphens",
+			text:     "Heading-with-hyphens",
+			expected: "heading-with-hyphens",
+		},
+		{
+			name:     "Text with multiple hyphens",
+			text:     "Heading--with--multiple--hyphens",
+			expected: "heading-with-multiple-hyphens",
+		},
+		{
+			name:     "Text with leading and trailing hyphens",
+			text:     "-Heading with hyphens-",
+			expected: "heading-with-hyphens",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := generateAnchor(tt.text)
+			if result != tt.expected {
+				t.Errorf("generateAnchor(%q) = %q, want %q", tt.text, result, tt.expected)
+			}
+		})
+	}
 } 
