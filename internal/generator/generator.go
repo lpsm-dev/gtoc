@@ -18,6 +18,7 @@ type Generator struct {
 	targetFile   string
 	maxDepth     int
 	excludePaths []string
+	language     string
 }
 
 // Heading represents a markdown heading
@@ -30,11 +31,17 @@ type Heading struct {
 }
 
 // NewGenerator creates a new Generator instance
-func NewGenerator(targetFile string, maxDepth int, excludePaths []string) *Generator {
+func NewGenerator(targetFile string, maxDepth int, excludePaths []string, language string) *Generator {
+	// Set default language to "pt" if not provided
+	if language == "" {
+		language = "pt"
+	}
+	
 	return &Generator{
 		targetFile:   targetFile,
 		maxDepth:     maxDepth,
 		excludePaths: excludePaths,
+		language:     language,
 	}
 }
 
@@ -49,7 +56,16 @@ func (g *Generator) Generate() (string, error) {
 	// Build the table of contents
 	var sb strings.Builder
 	sb.WriteString(indexStartMarker + "\n\n")
-	sb.WriteString("# Table of Contents\n\n")
+	
+	// Normalize language by trimming whitespace and converting to lowercase
+	normalizedLang := strings.ToLower(strings.TrimSpace(g.language))
+	
+	// Set the title based on language
+	if normalizedLang == "en" {
+		sb.WriteString("# Summary\n\n")
+	} else {
+		sb.WriteString("# Sumário\n\n")
+	}
 
 	// Generate TOC from headings
 	g.generateTOC(&sb, headings, 0)

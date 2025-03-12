@@ -15,6 +15,7 @@ var (
 	depth        int
 	excludePaths string
 	dryRun       bool
+	language     string
 )
 
 // generateCmd represents the generate command
@@ -63,6 +64,7 @@ Example:
 			absFilePath,
 			depth,
 			excludeList,
+			language,
 		)
 
 		toc, err := gen.Generate()
@@ -90,4 +92,5 @@ func init() {
 	generateCmd.Flags().IntVar(&depth, "depth", 0, "Maximum heading depth (0 for unlimited)")
 	generateCmd.Flags().StringVar(&excludePaths, "exclude", "", "Comma-separated list of heading patterns to exclude")
 	generateCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview changes without writing")
+	generateCmd.Flags().StringVar(&language, "language", "pt", "Language for the table of contents title (pt or en)")
 }
