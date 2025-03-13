@@ -52,7 +52,7 @@ func setupLogger() {
 	case "fatal":
 		level = log.FatalLevel
 	default:
-		level = log.InfoLevel
+		level = log.WarnLevel
 	}
 
 	// Configurar o logger com valores simplificados
@@ -80,12 +80,10 @@ func setupLogger() {
 
 func init() {
 	// Adicionar flags persistentes para configuração do logger
-	RootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "Set log level (debug, info, warn, error, fatal)")
+	RootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Set log level (debug, info, warn, error, fatal)")
 	RootCmd.PersistentFlags().StringVar(&logFormat, "log-format", "text", "Log format (text, json)")
 	RootCmd.PersistentFlags().BoolVar(&logNoColors, "log-no-colors", false, "Disable colors in logs")
 
 	// Adicionar comandos
 	RootCmd.AddCommand(generateCmd)
-	RootCmd.AddCommand(analyzeCmd)
-	RootCmd.AddCommand(versionCmd)
 }

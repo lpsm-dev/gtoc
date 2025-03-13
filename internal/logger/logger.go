@@ -13,7 +13,7 @@ var (
 	defaultLogger *log.Logger
 
 	// Configurações padrão
-	defaultLevel     = log.InfoLevel
+	defaultLevel     = log.WarnLevel
 	defaultTimeFormat = time.Kitchen
 	defaultCallerOffset = 0
 	defaultShowCaller = false
