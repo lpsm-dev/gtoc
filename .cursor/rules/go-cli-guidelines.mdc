@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Prompt for CLI Development in Go using Cobra
+
+## Context
+I'm developing a CLI (Command Line Interface) in Go using the Cobra library. I need help to implement a robust and well-structured command line application.
+
+## Experience
+I have significant experience with:
+- Development in Go (Golang)
+- Cobra library for structuring CLI commands
+- Command line interface design principles
+- Implementation of flags, arguments and subcommands
+- Error handling and validation of user input
+
+## Needs
+I need specific guidance to:
+1. structuring the project following best practices
+2. Implement commands, subcommands and flags efficiently
+3. Creating automatic help documentation
+4. Manage configurations and persistence
+5. Implement elegant input validations and error handling
+
+## Code Examples
+If possible, include code examples for:
+- Basic structure of a CLI with Cobra
+- Implementing flags with validation
+- Configuration of nested subcommands
+- Integration with configuration systems such as Viper
+
+## Notes
+- Preference for idiomatic solutions in Go
+- Focus on clean and maintainable code
+- Automated testing considerations

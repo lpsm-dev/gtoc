@@ -7,6 +7,57 @@ import (
 	"testing"
 )
 
+func TestGenerateTOCWithoutTitle(t *testing.T) {
+	// Create a temporary test file
+	tempFile := filepath.Join(t.TempDir(), "test.md")
+	content := `# First Heading
+This is some content under the first heading.
+
+## First Sub-heading
+More content here.
+
+# Second Heading
+Content for the second heading.
+
+# Third Heading
+Content for the third heading.
+`
+	err := os.WriteFile(tempFile, []byte(content), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create test file: %v", err)
+	}
+
+	gen := NewGenerator(tempFile, 0, nil, "pt")
+	toc, err := gen.Generate()
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	// Verificar que o TOC não contém o título "# Sumário" ou "# Summary"
+	if strings.Contains(toc, "# Sumário") || strings.Contains(toc, "# Summary") {
+		t.Error("TOC should not contain title '# Sumário' or '# Summary'")
+	}
+
+	// Verificar que o TOC contém os marcadores corretos
+	if !strings.Contains(toc, tocStartMarker) || !strings.Contains(toc, tocEndMarker) {
+		t.Error("TOC should contain start and end markers")
+	}
+
+	// Verificar que as entradas de TOC estão presentes
+	expectedEntries := []string{
+		"- [First Heading](#first-heading)",
+		"  - [First Sub-heading](#first-sub-heading)",
+		"- [Second Heading](#second-heading)",
+		"- [Third Heading](#third-heading)",
+	}
+
+	for _, entry := range expectedEntries {
+		if !strings.Contains(toc, entry) {
+			t.Errorf("TOC should contain entry: %s", entry)
+		}
+	}
+}
+
 func TestGenerateTOCWithLanguageOption(t *testing.T) {
 	// Create a temporary test file
 	tempFile := filepath.Join(t.TempDir(), "test.md")
@@ -30,52 +81,42 @@ Content for the third heading.
 	tests := []struct {
 		name     string
 		language string
-		wantTOC  string
 	}{
 		{
-			name:     "Portuguese title",
+			name:     "With Portuguese language option",
 			language: "pt",
-			wantTOC:  "# Sumário",
 		},
 		{
-			name:     "English title",
+			name:     "With English language option",
 			language: "en",
-			wantTOC:  "# Summary",
 		},
 		{
 			name:     "Default to Portuguese when empty",
 			language: "",
-			wantTOC:  "# Sumário",
 		},
 		{
 			name:     "Default to Portuguese when invalid",
 			language: "fr",
-			wantTOC:  "# Sumário",
 		},
 		{
 			name:     "Case insensitive - uppercase EN",
 			language: "EN",
-			wantTOC:  "# Summary",
 		},
 		{
 			name:     "Case insensitive - mixed case En",
 			language: "En",
-			wantTOC:  "# Summary",
 		},
 		{
 			name:     "Case insensitive - uppercase PT",
 			language: "PT",
-			wantTOC:  "# Sumário",
 		},
 		{
 			name:     "Case insensitive - mixed case Pt",
 			language: "Pt",
-			wantTOC:  "# Sumário",
 		},
 		{
 			name:     "Whitespace - language with spaces",
 			language: "  en  ",
-			wantTOC:  "# Summary",
 		},
 	}
 
@@ -87,9 +128,28 @@ Content for the third heading.
 				t.Fatalf("Generate failed: %v", err)
 			}
 
-			// Check if the generated TOC contains the expected title
-			if !strings.Contains(toc, tt.wantTOC) {
-				t.Errorf("Generate() = %v, want to contain %v", toc, tt.wantTOC)
+			// Verificar que o TOC não contém o título "# Sumário" ou "# Summary"
+			if strings.Contains(toc, "# Sumário") || strings.Contains(toc, "# Summary") {
+				t.Error("TOC should not contain title '# Sumário' or '# Summary'")
+			}
+
+			// Verificar que o TOC contém os marcadores corretos
+			if !strings.Contains(toc, tocStartMarker) || !strings.Contains(toc, tocEndMarker) {
+				t.Error("TOC should contain start and end markers")
+			}
+
+			// Verificar que as entradas de TOC estão presentes
+			expectedEntries := []string{
+				"- [First Heading](#first-heading)",
+				"  - [First Sub-heading](#first-sub-heading)",
+				"- [Second Heading](#second-heading)",
+				"- [Third Heading](#third-heading)",
+			}
+
+			for _, entry := range expectedEntries {
+				if !strings.Contains(toc, entry) {
+					t.Errorf("TOC should contain entry: %s", entry)
+				}
 			}
 		})
 	}
@@ -192,9 +252,9 @@ func TestGenerateAnchor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := generateAnchor(tt.text)
+			result := createAnchor(tt.text)
 			if result != tt.expected {
-				t.Errorf("generateAnchor(%q) = %q, want %q", tt.text, result, tt.expected)
+				t.Errorf("createAnchor(%q) = %q, want %q", tt.text, result, tt.expected)
 			}
 		})
 	}

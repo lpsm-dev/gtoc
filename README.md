@@ -26,9 +26,8 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 
 <!-- START_TABLE_OF_CONTENTS -->
 
-# Table of Contents
+# Sumário
 
-- [Table of Contents](#table-of-contents)
 - [Visão Geral](#viso-geral)
   - [Objetivo](#objetivo)
   - [Contexto e Motivação](#contexto-e-motivao)
