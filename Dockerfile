@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /gtoc
 
-FROM alpine:3.22
+FROM alpine:3.24
 
 RUN addgroup -S gtoc && adduser -S gtoc -G gtoc
 
