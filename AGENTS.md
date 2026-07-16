@@ -66,6 +66,29 @@ golangci-lint run ./...   # or: task go:lint
   behavior, update or add the test describing the new behavior first, then make
   it pass.
 
+## Working method
+
+Distilled from [Claude Code's best practices](https://code.claude.com/docs/en/best-practices);
+they apply to any coding agent working here:
+
+- **Close the loop with a runnable check.** Every change ships with a
+  verification you can execute (test, build, lint, running the binary);
+  iterate until it passes and show the evidence — the command and its output —
+  instead of asserting success.
+- **Explore, plan, then code.** For multi-file or unfamiliar changes, read the
+  relevant code and state a short plan before editing. Skip the ceremony when
+  the diff fits in one sentence.
+- **Fix root causes.** Never suppress an error, skip a failing test, or tweak
+  an assertion to go green; find out why it fails first.
+- **Keep context lean.** Delegate wide codebase exploration to subagents or
+  subtasks that return summaries; scope investigations narrowly instead of
+  reading files indiscriminately.
+- **Review in a fresh context.** Before treating work as done, run a separate
+  review pass (subagent or new session) of the diff against the requirements.
+  Report correctness gaps only — no speculative hardening, no style nits.
+- **Prefer CLIs for external services.** Use `gh` for anything GitHub
+  (issues, PRs, workflow runs) instead of raw API calls.
+
 ## Commits and releases
 
 - **Conventional Commits**: `type(scope): description`, lowercase, imperative,
