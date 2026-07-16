@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/lpsm-dev/gtoc/internal/logger"
 	"github.com/spf13/cobra"
 )
