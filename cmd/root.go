@@ -10,80 +10,83 @@ import (
 )
 
 var (
-	// Opções de log
+	// Logger flags shared by every subcommand.
 	logLevel    string
 	logFormat   string
 	logNoColors bool
 )
 
-// RootCmd is the base command for the CLI application
+// RootCmd is the base command for the CLI application.
 var RootCmd = &cobra.Command{
 	Use:   "gtoc",
 	Short: "Generate a table of contents for markdown files",
 	Long: `gtoc is a CLI tool that generates a table of contents based on the headings
 in a markdown file and updates the file with the generated table of contents.`,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// Configurar o logger global antes de qualquer comando ser executado
+		// Configure the global logger before any command runs.
 		setupLogger()
 	},
 }
 
-// Execute runs the root command
+// Execute runs the root command and reports any resulting error exactly
+// once, on stderr, before exiting with a non-zero status.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-// setupLogger configura o logger global com base nas flags
+// setupLogger configures the global logger based on the persistent flags.
 func setupLogger() {
-	// Converter string de nível para log.Level
-	var level log.Level
-	switch logLevel {
-	case "debug":
-		level = log.DebugLevel
-	case "info":
-		level = log.InfoLevel
-	case "warn":
-		level = log.WarnLevel
-	case "error":
-		level = log.ErrorLevel
-	case "fatal":
-		level = log.FatalLevel
-	default:
-		level = log.WarnLevel
-	}
-
-	// Configurar o logger com valores simplificados
 	opts := &logger.Options{
-		Level:      level,
-		TimeFormat: "15:04:05", // Formato de hora padrão
-		ShowCaller: false,      // Não mostrar o caller por padrão
+		Level:      logLevelFromFlag(logLevel),
+		TimeFormat: "15:04:05",
+		ShowCaller: false,
 	}
+	logger.Init(opts)
 
-	// Definir formato de saída (JSON, texto, etc.)
 	if logFormat == "json" {
-		logger.Init(opts)
 		logger.GetLogger().SetFormatter(log.JSONFormatter)
 	} else {
-		logger.Init(opts)
 		logger.GetLogger().SetFormatter(log.TextFormatter)
 	}
 
-	// Desativar cores se solicitado
 	if logNoColors {
-		emptyStyles := &log.Styles{}
-		logger.GetLogger().SetStyles(emptyStyles)
+		logger.GetLogger().SetStyles(&log.Styles{})
+	}
+}
+
+// logLevelFromFlag converts the --log-level flag value into a log.Level,
+// defaulting to log.WarnLevel for empty or unrecognized values.
+func logLevelFromFlag(level string) log.Level {
+	switch level {
+	case "debug":
+		return log.DebugLevel
+	case "info":
+		return log.InfoLevel
+	case "warn":
+		return log.WarnLevel
+	case "error":
+		return log.ErrorLevel
+	case "fatal":
+		return log.FatalLevel
+	default:
+		return log.WarnLevel
 	}
 }
 
 func init() {
-	// Adicionar flags persistentes para configuração do logger
 	RootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Set log level (debug, info, warn, error, fatal)")
 	RootCmd.PersistentFlags().StringVar(&logFormat, "log-format", "text", "Log format (text, json)")
 	RootCmd.PersistentFlags().BoolVar(&logNoColors, "log-no-colors", false, "Disable colors in logs")
 
-	// Adicionar comandos
+	// Register every subcommand here so command registration lives in a
+	// single, predictable place.
 	RootCmd.AddCommand(generateCmd)
+	RootCmd.AddCommand(analyzeCmd)
+	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(upgradeCmd)
 }
