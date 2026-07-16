@@ -8,45 +8,38 @@
 
 The tool targets README and documentation upkeep: instead of maintaining a
 table of contents by hand, `gtoc generate <file>` rebuilds it from the actual
-headings. A companion `gtoc analyze` command adds README best-practice markers
-and a "back to top" link at the end of every top-level section, and
-`gtoc upgrade` self-updates the binary from GitHub releases.
+headings. Module path: `github.com/lpsm-dev/gtoc`. Written in Go 1.25+,
+released via GoReleaser for Linux, macOS and Windows.
 
-Module path: `github.com/lpsm-dev/gtoc`. Language: Go (1.25+). License: see
-[LICENSE](LICENSE).
+Commands:
 
-## Commands
+- `generate [file]`: rebuild the TOC. Flags: `--file`, `--depth` (max heading
+  level, 0 = unlimited), `--exclude` (comma-separated heading texts,
+  case-insensitive substring), `--dry-run`, `--pretty`.
+- `analyze`: add `BEGIN_DOCS`/`END_DOCS` markers, a `readme-top` anchor and a
+  "back to top" link after each `#` section. Flag: `--file` (default `README.md`).
+- `upgrade`: self-update from the latest GitHub release for the current
+  OS/arch, verifying the published SHA-256 checksum. Flags: `--force`, `--endpoint`.
+- `version`: print version and Go/OS/arch build info.
 
-- `generate [file]`: rebuild the TOC for a Markdown file. Flags: `--file`,
-  `--depth` (max heading level, 0 = unlimited), `--exclude` (comma-separated
-  heading texts, case-insensitive substring), `--dry-run`, `--pretty`.
-- `analyze`: add `BEGIN_DOCS`/`END_DOCS` markers, a `readme-top` anchor, and a
-  "back to top" link after each `#` section. Flag: `--file` (default
-  `README.md`).
-- `upgrade`: download and install the latest GitHub release for the current
-  OS/arch, verifying the published SHA-256 checksum. Flags: `--force`,
-  `--endpoint`.
-- `version`: print the binary version and Go/OS/arch build info.
+Conventions: Conventional Commits; cyclomatic complexity ≤ 10 per function
+(golangci-lint/gocyclo); standard-library-only core; anchors must match
+GitHub's github-slugger algorithm and never change without a test.
 
-## Documentation
+## Docs
 
-- [README.md](README.md): overview, installation and usage (Portuguese).
-- [README_en.md](README_en.md): the same, in English.
-- [CONTRIBUTING.md](CONTRIBUTING.md): human contributor guide.
-- [AGENTS.md](AGENTS.md): guidance and hard constraints for AI coding agents.
+- [README](https://github.com/lpsm-dev/gtoc/blob/main/README.md): overview, installation and usage guide (Portuguese)
+- [README in English](https://github.com/lpsm-dev/gtoc/blob/main/README_en.md): the same guide in English
+- [AGENTS.md](https://github.com/lpsm-dev/gtoc/blob/main/AGENTS.md): guidance and hard constraints for AI coding agents
 
 ## Source
 
-- [main.go](main.go): entry point.
-- [cmd/](cmd): Cobra command definitions (`generate`, `analyze`, `upgrade`, `version`).
-- [internal/generator/generator.go](internal/generator/generator.go): heading
-  extraction, GitHub-compatible anchor slugging, and TOC assembly — the core
-  logic, and the best starting point for understanding the tool.
-- [internal/logger/logger.go](internal/logger/logger.go): logging wrapper.
+- [generator.go](https://github.com/lpsm-dev/gtoc/blob/main/internal/generator/generator.go): heading extraction, GitHub-compatible anchor slugging and TOC assembly — the core logic and best starting point
+- [cmd directory](https://github.com/lpsm-dev/gtoc/tree/main/cmd): Cobra command definitions (generate, analyze, upgrade, version)
+- [main.go](https://github.com/lpsm-dev/gtoc/blob/main/main.go): entry point
 
-## Conventions
+## Optional
 
-- Conventional Commits; releases via semantic-release and GoReleaser off `main`.
-- Cyclomatic complexity ≤ 10 per function, enforced by golangci-lint (gocyclo).
-- Standard-library-only core; GitHub-compatible anchors must not change without
-  a test.
+- [CONTRIBUTING.md](https://github.com/lpsm-dev/gtoc/blob/main/CONTRIBUTING.md): human contributor guide
+- [Releases](https://github.com/lpsm-dev/gtoc/releases): prebuilt binaries and checksums
+- [LICENSE](https://github.com/lpsm-dev/gtoc/blob/main/LICENSE): license terms

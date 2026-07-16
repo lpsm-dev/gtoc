@@ -62,6 +62,9 @@ golangci-lint run ./...   # or: task go:lint
   import path on major versions (e.g. `charm.land/glamour/v2`), so a bare
   `go.mod` bump breaks the build. Update the import sites and verify a full
   build before merging.
+- **Behavior changes start with a test.** When changing `internal/generator`
+  behavior, update or add the test describing the new behavior first, then make
+  it pass.
 
 ## Commits and releases
 
