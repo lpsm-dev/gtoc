@@ -15,16 +15,21 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Persisted credentials are required here: semantic-release pushes
+      # the changelog commit and the release tag back to main.
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # zizmor: ignore[artipacked] v7
         with:
           fetch-depth: 0
+      # Node cache does not feed the published artifact: goreleaser builds
+      # from git-tracked Go sources only.
       - name: Setup node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # zizmor: ignore[cache-poisoning] v7
         with:
           node-version: "lts/*"
+      # Throwaway release tooling, majors pinned; not part of the artifact.
       - name: Install semantic-release
-        run: |
+        run: |  # zizmor: ignore[adhoc-packages]
           # Local install: semantic-release resolves plugins from
           # ./node_modules; isolated global packages are not resolvable.
           npm install --no-save --no-package-lock \
@@ -48,12 +53,14 @@ jobs:
             >> "$GITHUB_OUTPUT"
       - name: Set up Go
         if: steps.tag.outputs.tag != ''
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7
         with:
           go-version-file: go.mod
+          # No cache restore in the artifact-publishing path (cache poisoning)
+          cache: false
       - name: Run GoReleaser
         if: steps.tag.outputs.tag != ''
-        uses: goreleaser/goreleaser-action@v7
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94  # v7
         with:
           distribution: goreleaser
           version: latest
