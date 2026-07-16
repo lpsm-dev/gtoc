@@ -17,6 +17,19 @@
         "digest"
       ],
       "automerge": true
+    },
+    {
+      "description": "Major Go module bumps need manual review: v2+ modules often change their import path (e.g. charm.land/*/v2), which a bare go.mod bump breaks",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "needs-manual-review"
+      ]
     }
   ]
 }
