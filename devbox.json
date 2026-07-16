@@ -3,7 +3,7 @@
   "packages": [
     "direnv@2.35.0",
     "gitleaks@8.24.0",
-    "golangci-lint@latest",
+    "golangci-lint@2.12.2",
     "pre-commit@4.0.1",
     "yamllint@1.35.1"
   ],
