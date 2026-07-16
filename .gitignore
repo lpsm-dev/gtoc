@@ -64,3 +64,8 @@ vendor/
 Godeps/
 bin/
 dist/
+
+### Node (semantic-release tooling in CI) ###
+node_modules/
+package.json
+package-lock.json
