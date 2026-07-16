@@ -9,18 +9,16 @@ import (
 )
 
 var (
-	// Instância global do logger
+	// Global logger instance.
 	defaultLogger *log.Logger
 
-	// Configurações padrão
-	defaultLevel     = log.WarnLevel
+	// Default configuration values.
+	defaultLevel      = log.WarnLevel
 	defaultTimeFormat = time.Kitchen
-	defaultCallerOffset = 0
-	defaultShowCaller = false
 	defaultPrefix     = "gtoc"
 )
 
-// Opções de configuração do logger
+// Options configures the logger.
 type Options struct {
 	Level        log.Level
 	TimeFormat   string
@@ -30,13 +28,13 @@ type Options struct {
 	Prefix       string
 }
 
-// Init inicializa o logger global com as opções personalizadas
+// Init initializes the global logger with the given options.
 func Init(opts *Options) {
 	if opts == nil {
 		opts = &Options{}
 	}
 
-	// Aplicar valores padrão para campos não definidos
+	// Apply default values for unset fields.
 	if opts.Level == 0 {
 		opts.Level = defaultLevel
 	}
@@ -50,7 +48,7 @@ func Init(opts *Options) {
 		opts.Prefix = defaultPrefix
 	}
 
-	// Criar e configurar o logger
+	// Create and configure the logger.
 	defaultLogger = log.NewWithOptions(opts.Output, log.Options{
 		Level:        opts.Level,
 		TimeFormat:   opts.TimeFormat,
@@ -60,63 +58,63 @@ func Init(opts *Options) {
 	})
 }
 
-// GetLogger retorna a instância global do logger
+// GetLogger returns the global logger instance.
 func GetLogger() *log.Logger {
 	if defaultLogger == nil {
-		// Inicializar com valores padrão se ainda não foi inicializado
+		// Initialize with default values if not yet initialized.
 		Init(nil)
 	}
 	return defaultLogger
 }
 
-// SetLevel altera o nível de log
+// SetLevel changes the log level.
 func SetLevel(level log.Level) {
 	GetLogger().SetLevel(level)
 }
 
-// SetOutput altera o destino da saída de log
+// SetOutput changes the log output destination.
 func SetOutput(output io.Writer) {
 	GetLogger().SetOutput(output)
 }
 
-// SetTimeFormat altera o formato de tempo para os logs
+// SetTimeFormat changes the time format used in logs.
 func SetTimeFormat(format string) {
 	GetLogger().SetTimeFormat(format)
 }
 
-// SetPrefix altera o prefixo dos logs
+// SetPrefix changes the log prefix.
 func SetPrefix(prefix string) {
 	GetLogger().SetPrefix(prefix)
 }
 
-// Funções helper para facilitar o uso do logger
+// Helper functions for convenient logger usage.
 
-// Debug registra uma mensagem de debug
-func Debug(msg interface{}, keyvals ...interface{}) {
+// Debug logs a debug message.
+func Debug(msg any, keyvals ...any) {
 	GetLogger().Debug(msg, keyvals...)
 }
 
-// Info registra uma mensagem de informação
-func Info(msg interface{}, keyvals ...interface{}) {
+// Info logs an informational message.
+func Info(msg any, keyvals ...any) {
 	GetLogger().Info(msg, keyvals...)
 }
 
-// Warn registra uma mensagem de aviso
-func Warn(msg interface{}, keyvals ...interface{}) {
+// Warn logs a warning message.
+func Warn(msg any, keyvals ...any) {
 	GetLogger().Warn(msg, keyvals...)
 }
 
-// Error registra uma mensagem de erro
-func Error(msg interface{}, keyvals ...interface{}) {
+// Error logs an error message.
+func Error(msg any, keyvals ...any) {
 	GetLogger().Error(msg, keyvals...)
 }
 
-// Fatal registra uma mensagem fatal e encerra a aplicação
-func Fatal(msg interface{}, keyvals ...interface{}) {
+// Fatal logs a fatal message and terminates the application.
+func Fatal(msg any, keyvals ...any) {
 	GetLogger().Fatal(msg, keyvals...)
 }
 
-// With retorna um novo logger com os valores chave-valor adicionados
-func With(keyvals ...interface{}) *log.Logger {
+// With returns a new logger with the given key-value pairs added.
+func With(keyvals ...any) *log.Logger {
 	return GetLogger().With(keyvals...)
-} 
+}

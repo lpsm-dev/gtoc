@@ -22,19 +22,17 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 
 > [!NOTE]
 >
-> **AVISO**: Esse repositório está em constante evolução. Se você encontrar algum erro ou tiver sugestões, por favor, abra uma [issue](https://github.com/lpsm-dev/dotfiles/issues/new/choose) ou envie um [pull request](https://github.com/lpsm-dev/dotfiles/pulls).
+> **AVISO**: Esse repositório está em constante evolução. Se você encontrar algum erro ou tiver sugestões, por favor, abra uma [issue](https://github.com/lpsm-dev/gtoc/issues/new/choose) ou envie um [pull request](https://github.com/lpsm-dev/gtoc/pulls).
 
 <!-- START_TABLE_OF_CONTENTS -->
 
-# Sumário
-
-- [Visão Geral](#viso-geral)
+- [Visão Geral](#visão-geral)
   - [Objetivo](#objetivo)
-  - [Contexto e Motivação](#contexto-e-motivao)
-- [Implementação](#implementao)
-  - [Pré-requisitos](#pr-requisitos)
-  - [Instalação](#instalao)
-- [Contribuição](#contribuio)
+  - [Contexto e Motivação](#contexto-e-motivação)
+- [Implementação](#implementação)
+  - [Pré-requisitos](#pré-requisitos)
+  - [Instalação](#instalação)
+- [Contribuição](#contribuição)
 - [Versionamento](#versionamento)
 - [Troubleshooting](#troubleshooting)
 - [Show your support](#show-your-support)
@@ -79,7 +77,7 @@ Para verificar o histórico de mudanças, acesse o arquivo [**CHANGELOG.md**](CH
 
 # Troubleshooting
 
-Se você tiver algum problema, abra uma [issue](https://github.com/lpsm-dev/dotfiles/issues/new/choose) nesse projeto.
+Se você tiver algum problema, abra uma [issue](https://github.com/lpsm-dev/gtoc/issues/new/choose) nesse projeto.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
