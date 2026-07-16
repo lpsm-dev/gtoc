@@ -18,7 +18,9 @@ repos:
     rev: v1.5.5
     hooks:
       - id: remove-crlf
+        exclude: '(\.go$|^go\.(mod|sum)$)'
       - id: remove-tabs
+        exclude: '(\.go$|^go\.(mod|sum)$)'
   - repo: https://github.com/sirosen/fix-smartquotes
     rev: 0.2.0
     hooks:

@@ -1,15 +1,20 @@
-FROM golang:1.24-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
-COPY . .
+
+COPY go.mod go.sum ./
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -o /gtoc
 
-FROM alpine:3.21
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /gtoc
 
-RUN apk add --no-cache git
+FROM alpine:3.22
 
-WORKDIR /app
+RUN addgroup -S gtoc && adduser -S gtoc -G gtoc
+
+WORKDIR /work
 COPY --from=builder /gtoc /usr/local/bin/gtoc
+
+USER gtoc
 
 ENTRYPOINT ["gtoc"]
