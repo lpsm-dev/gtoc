@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/glamour"
+	"charm.land/glamour/v2"
 	"github.com/lpsm-dev/gtoc/internal/generator"
 	"github.com/lpsm-dev/gtoc/internal/logger"
 	"github.com/spf13/cobra"
@@ -139,9 +139,11 @@ func previewTOC(gen *generator.Generator, absFilePath, toc string) error {
 func renderPretty(content, toc string) {
 	logger.Info("Pretty output enabled", "render", "glamour")
 
+	// glamour v2 removed WithAutoStyle; WithEnvironmentConfig honors the
+	// GLAMOUR_STYLE env var and defaults to the dark theme.
 	r, err := glamour.NewTermRenderer(
 		glamour.WithWordWrap(100),
-		glamour.WithAutoStyle(),
+		glamour.WithEnvironmentConfig(),
 	)
 	if err != nil {
 		logger.Warn("Failed to create markdown renderer, falling back to plain output", "error", err)
