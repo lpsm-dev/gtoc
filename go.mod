@@ -2,6 +2,8 @@ module github.com/lpsm-dev/gtoc
 
 go 1.25.0
 
+toolchain go1.26.5
+
 require (
 	github.com/charmbracelet/glamour v1.0.0
 	github.com/charmbracelet/log v1.0.0
