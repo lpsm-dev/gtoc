@@ -1,0 +1,52 @@
+# gtoc
+
+> gtoc is a single-binary Go CLI that generates and maintains a table of
+> contents in Markdown files. It reads a file's headings, builds a hierarchical
+> index with GitHub-compatible anchors (Unicode/accents preserved, duplicate
+> headings suffixed `-1`, `-2`, …), and writes it back between HTML markers,
+> idempotently.
+
+The tool targets README and documentation upkeep: instead of maintaining a
+table of contents by hand, `gtoc generate <file>` rebuilds it from the actual
+headings. A companion `gtoc analyze` command adds README best-practice markers
+and a "back to top" link at the end of every top-level section, and
+`gtoc upgrade` self-updates the binary from GitHub releases.
+
+Module path: `github.com/lpsm-dev/gtoc`. Language: Go (1.25+). License: see
+[LICENSE](LICENSE).
+
+## Commands
+
+- `generate [file]`: rebuild the TOC for a Markdown file. Flags: `--file`,
+  `--depth` (max heading level, 0 = unlimited), `--exclude` (comma-separated
+  heading texts, case-insensitive substring), `--dry-run`, `--pretty`.
+- `analyze`: add `BEGIN_DOCS`/`END_DOCS` markers, a `readme-top` anchor, and a
+  "back to top" link after each `#` section. Flag: `--file` (default
+  `README.md`).
+- `upgrade`: download and install the latest GitHub release for the current
+  OS/arch, verifying the published SHA-256 checksum. Flags: `--force`,
+  `--endpoint`.
+- `version`: print the binary version and Go/OS/arch build info.
+
+## Documentation
+
+- [README.md](README.md): overview, installation and usage (Portuguese).
+- [README_en.md](README_en.md): the same, in English.
+- [CONTRIBUTING.md](CONTRIBUTING.md): human contributor guide.
+- [AGENTS.md](AGENTS.md): guidance and hard constraints for AI coding agents.
+
+## Source
+
+- [main.go](main.go): entry point.
+- [cmd/](cmd): Cobra command definitions (`generate`, `analyze`, `upgrade`, `version`).
+- [internal/generator/generator.go](internal/generator/generator.go): heading
+  extraction, GitHub-compatible anchor slugging, and TOC assembly — the core
+  logic, and the best starting point for understanding the tool.
+- [internal/logger/logger.go](internal/logger/logger.go): logging wrapper.
+
+## Conventions
+
+- Conventional Commits; releases via semantic-release and GoReleaser off `main`.
+- Cyclomatic complexity ≤ 10 per function, enforced by golangci-lint (gocyclo).
+- Standard-library-only core; GitHub-compatible anchors must not change without
+  a test.
