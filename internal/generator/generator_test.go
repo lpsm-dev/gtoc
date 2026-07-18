@@ -50,10 +50,10 @@ Content for the third heading.
 	}
 
 	expected := tocStartMarker + "\n\n" +
-		"- [First Heading](#first-heading)\n" +
-		"  - [First Sub-heading](#first-sub-heading)\n" +
-		"- [Second Heading](#second-heading)\n" +
-		"- [Third Heading](#third-heading)\n" +
+		"1. [First Heading](#first-heading)\n" +
+		"   1. [First Sub-heading](#first-sub-heading)\n" +
+		"2. [Second Heading](#second-heading)\n" +
+		"3. [Third Heading](#third-heading)\n" +
 		"\n" + backToTopLink + "\n" +
 		"\n" + tocEndMarker
 
@@ -104,8 +104,8 @@ Second setup section.
 	}
 
 	expectedEntries := []string{
-		"- [Setup](#setup)\n",
-		"- [Setup](#setup-1)\n",
+		"1. [Setup](#setup)\n",
+		"2. [Setup](#setup-1)\n",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(toc, entry) {
@@ -140,9 +140,9 @@ func TestExtractHeadingsSkipsCodeFences(t *testing.T) {
 	}
 
 	expectedEntries := []string{
-		"- [Heading One](#heading-one)",
-		"- [Heading Two](#heading-two)",
-		"- [Heading Three](#heading-three)",
+		"[Heading One](#heading-one)",
+		"[Heading Two](#heading-two)",
+		"[Heading Three](#heading-three)",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(toc, entry) {
@@ -167,7 +167,7 @@ func TestExtractHeadingsSkipsFencedCodeWithInfoString(t *testing.T) {
 	if strings.Contains(toc, "Also Not A Heading") {
 		t.Error("TOC should not contain headings inside a fence with an info string")
 	}
-	if !strings.Contains(toc, "- [Real Heading](#real-heading)") {
+	if !strings.Contains(toc, "[Real Heading](#real-heading)") {
 		t.Error("TOC should contain the real heading")
 	}
 }
@@ -190,7 +190,7 @@ func TestGenerateAndUpdateFileIdempotent(t *testing.T) {
 	if strings.Contains(toc1, "Old Entry") {
 		t.Error("TOC must not include entries found inside an existing TOC block")
 	}
-	if !strings.Contains(toc1, "- [Real Heading](#real-heading)") {
+	if !strings.Contains(toc1, "[Real Heading](#real-heading)") {
 		t.Error("TOC should contain the real heading outside the TOC block")
 	}
 
@@ -237,10 +237,10 @@ func TestGenerateMaxDepthFiltering(t *testing.T) {
 		t.Fatalf("Generate failed: %v", err)
 	}
 
-	if !strings.Contains(toc, "- [Level One](#level-one)") {
+	if !strings.Contains(toc, "[Level One](#level-one)") {
 		t.Error("TOC should contain level 1 heading")
 	}
-	if !strings.Contains(toc, "- [Level Two](#level-two)") {
+	if !strings.Contains(toc, "[Level Two](#level-two)") {
 		t.Error("TOC should contain level 2 heading")
 	}
 	if strings.Contains(toc, "Level Three") {
@@ -266,10 +266,10 @@ func TestGenerateExcludePatterns(t *testing.T) {
 	if strings.Contains(toc, "Internal Notes") {
 		t.Error("TOC should exclude headings matching an exclude pattern, case-insensitively")
 	}
-	if !strings.Contains(toc, "- [Public Section](#public-section)") {
+	if !strings.Contains(toc, "[Public Section](#public-section)") {
 		t.Error("TOC should contain non-matching headings")
 	}
-	if !strings.Contains(toc, "- [Another Public Section](#another-public-section)") {
+	if !strings.Contains(toc, "[Another Public Section](#another-public-section)") {
 		t.Error("TOC should contain non-matching headings")
 	}
 }
@@ -290,16 +290,16 @@ func TestGenerateIndentNormalization(t *testing.T) {
 	}
 
 	expectedEntries := []string{
-		"- [Section One](#section-one)\n",
-		"  - [Subsection](#subsection)\n",
-		"- [Section Two](#section-two)\n",
+		"1. [Section One](#section-one)\n",
+		"   1. [Subsection](#subsection)\n",
+		"2. [Section Two](#section-two)\n",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(toc, entry) {
 			t.Errorf("TOC should contain entry %q when document starts at level 2, got: %s", entry, toc)
 		}
 	}
-	if strings.Contains(toc, "    - [Subsection]") {
+	if strings.Contains(toc, "      1. [Subsection]") {
 		t.Error("indentation should be normalized relative to the document's minimum heading level")
 	}
 }
