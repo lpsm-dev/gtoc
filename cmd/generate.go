@@ -13,11 +13,12 @@ import (
 )
 
 var (
-	filePath     string
-	depth        int
-	excludePaths string
-	dryRun       bool
-	prettyOutput bool
+	filePath       string
+	depth          int
+	excludePaths   string
+	dryRun         bool
+	prettyOutput   bool
+	numberHeadings bool
 )
 
 // generateCmd handles TOC generation for markdown files.
@@ -58,6 +59,11 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 
 	logger.Info("Generating table of contents", "file", absFilePath)
 	gen := generator.NewGenerator(absFilePath, depth, excludeList)
+
+	if numberHeadings {
+		return runNumberHeadings(gen, absFilePath, path)
+	}
+
 	toc, err := gen.Generate()
 	if err != nil {
 		return fmt.Errorf("failed to generate table of contents: %w", err)
@@ -68,6 +74,33 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 	}
 
 	return writeTOC(gen, path, toc)
+}
+
+// runNumberHeadings numbers the document's headings in place and refreshes the
+// TOC to link to them, previewing (--dry-run) or writing the result.
+func runNumberHeadings(gen *generator.Generator, absFilePath, path string) error {
+	content, err := gen.GenerateNumberedFile()
+	if err != nil {
+		return fmt.Errorf("failed to number headings: %w", err)
+	}
+
+	if dryRun {
+		fmt.Println("Dry run mode. The document would be updated to:")
+		fmt.Println("\n" + content)
+		return nil
+	}
+
+	mode := os.FileMode(0644)
+	if info, statErr := os.Stat(absFilePath); statErr == nil {
+		mode = info.Mode().Perm()
+	}
+	if err := os.WriteFile(absFilePath, []byte(content), mode); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	logger.Info("File updated successfully", "path", path)
+	fmt.Printf("Successfully numbered headings and updated %s\n", path)
+	return nil
 }
 
 // resolveFilePath returns the target file path from the positional argument
@@ -186,4 +219,5 @@ func init() {
 	generateCmd.Flags().StringVar(&excludePaths, "exclude", "", "Comma-separated heading texts to exclude from the TOC (case-insensitive substring match)")
 	generateCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview changes without writing")
 	generateCmd.Flags().BoolVar(&prettyOutput, "pretty", false, "Render output with formatting and show full file in dry-run mode")
+	generateCmd.Flags().BoolVar(&numberHeadings, "number-headings", false, "Number the document's headings in place (# -> 1., ## -> 1.1., ...) and link the TOC to them")
 }
