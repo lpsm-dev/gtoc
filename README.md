@@ -27,27 +27,27 @@ Hello Human 👽! Bem-vindo ao meu repositório 👋
 
 <!-- START_TABLE_OF_CONTENTS -->
 
-- [Visão Geral](#visão-geral)
-  - [Objetivo](#objetivo)
-  - [Contexto e Motivação](#contexto-e-motivação)
-- [Implementação](#implementação)
-  - [Pré-requisitos](#pré-requisitos)
-  - [Instalação](#instalação)
-  - [Uso](#uso)
-- [Contribuição](#contribuição)
-- [Versionamento](#versionamento)
-- [Troubleshooting](#troubleshooting)
-- [Show your support](#show-your-support)
+[1. Visão Geral](#1-visão-geral)<br>
+&nbsp;&nbsp;&nbsp;[1.1. Objetivo](#11-objetivo)<br>
+&nbsp;&nbsp;&nbsp;[1.2. Contexto e Motivação](#12-contexto-e-motivação)<br>
+[2. Implementação](#2-implementação)<br>
+&nbsp;&nbsp;&nbsp;[2.1. Pré-requisitos](#21-pré-requisitos)<br>
+&nbsp;&nbsp;&nbsp;[2.2. Instalação](#22-instalação)<br>
+&nbsp;&nbsp;&nbsp;[2.3. Uso](#23-uso)<br>
+[3. Contribuição](#3-contribuição)<br>
+[4. Versionamento](#4-versionamento)<br>
+[5. Troubleshooting](#5-troubleshooting)<br>
+[6. Show your support](#6-show-your-support)<br>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- END_TABLE_OF_CONTENTS -->
 
-# Visão Geral
+# 1. Visão Geral
 
 O `gtoc` é uma CLI escrita em Go que gera e mantém atualizado o sumário (table of contents) de arquivos Markdown. Ele lê os headings do arquivo, monta um índice hierárquico com âncoras compatíveis com o GitHub e insere o resultado entre marcadores HTML, de forma idempotente: rodar o comando duas vezes produz o mesmo resultado.
 
-## Objetivo
+## 1.1. Objetivo
 
 Eliminar a manutenção manual de sumários em READMEs e documentações longas. O `gtoc` cuida de:
 
@@ -56,19 +56,19 @@ Eliminar a manutenção manual de sumários em READMEs e documentações longas.
 - Ignorar headings dentro de blocos de código e do próprio sumário;
 - Atualizar o bloco existente no lugar, preservando o restante do arquivo e as permissões.
 
-## Contexto e Motivação
+## 1.2. Contexto e Motivação
 
 READMEs bem estruturados facilitam a navegação, mas sumários mantidos à mão ficam desatualizados a cada seção criada ou renomeada. Ferramentas existentes (como o doctoc) resolvem parte do problema, porém este projeto nasceu para: (1) ter uma solução em binário único, sem dependência de Node; (2) tratar corretamente âncoras com acentuação em português; e (3) servir de laboratório de boas práticas de desenvolvimento de CLIs em Go.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Implementação
+# 2. Implementação
 
-## Pré-requisitos
+## 2.1. Pré-requisitos
 
 Nenhum para usar o binário publicado nas releases. Para compilar a partir do código-fonte, é necessário Go `1.25+` (veja a versão exata no [go.mod](go.mod)).
 
-## Instalação
+## 2.2. Instalação
 
 Via `go install`:
 
@@ -89,7 +89,7 @@ docker build -t gtoc .
 docker run --rm -v "$(pwd)":/work gtoc generate README.md
 ```
 
-## Uso
+## 2.3. Uso
 
 Gerar ou atualizar o sumário de um arquivo:
 
@@ -127,25 +127,25 @@ Flags globais: `--log-level` (`debug`, `info`, `warn`, `error`, `fatal`), `--log
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Contribuição
+# 3. Contribuição
 
 Gostaria de contribuir? Isso é ótimo! Temos um guia de contribuição para te ajudar. Clique [aqui](CONTRIBUTING.md) para lê-lo.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Versionamento
+# 4. Versionamento
 
 Para verificar o histórico de mudanças, acesse o arquivo [**CHANGELOG.md**](CHANGELOG.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Troubleshooting
+# 5. Troubleshooting
 
 Se você tiver algum problema, abra uma [issue](https://github.com/lpsm-dev/gtoc/issues/new/choose) nesse projeto.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Show your support
+# 6. Show your support
 
 <div align="center">
 
