@@ -60,15 +60,31 @@ func (g *Generator) Generate() (string, error) {
 
 	var sb strings.Builder
 	sb.WriteString(tocStartMarker + "\n\n")
-
-	for _, heading := range headings {
-		indent := strings.Repeat("  ", heading.Level-minLevel)
-		sb.WriteString(fmt.Sprintf("%s- [%s](#%s)\n", indent, heading.Text, heading.Anchor))
-	}
-
+	sb.WriteString(renderEntries(headings, minLevel))
 	sb.WriteString("\n" + backToTopLink + "\n")
 	sb.WriteString("\n" + tocEndMarker)
 	return sb.String(), nil
+}
+
+// renderEntries renders the TOC as a numbered (ordered) list. Numbering is
+// per level and restarts whenever a deeper level is re-entered, so nested
+// sub-sections read 1., 2., ... under their parent. Ordered-list items are
+// indented three spaces per level so GitHub renders the nesting correctly.
+func renderEntries(headings []*Heading, minLevel int) string {
+	var sb strings.Builder
+	counters := make(map[int]int)
+	for _, heading := range headings {
+		rel := heading.Level - minLevel
+		for deeper := range counters {
+			if deeper > rel {
+				delete(counters, deeper)
+			}
+		}
+		counters[rel]++
+		indent := strings.Repeat("   ", rel)
+		sb.WriteString(fmt.Sprintf("%s%d. [%s](#%s)\n", indent, counters[rel], heading.Text, heading.Anchor))
+	}
+	return sb.String()
 }
 
 // minHeadingLevel returns the smallest heading level present in headings, or
