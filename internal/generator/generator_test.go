@@ -50,10 +50,10 @@ Content for the third heading.
 	}
 
 	expected := tocStartMarker + "\n\n" +
-		"1. [First Heading](#first-heading)\n" +
-		"   1. [First Sub-heading](#first-sub-heading)\n" +
-		"2. [Second Heading](#second-heading)\n" +
-		"3. [Third Heading](#third-heading)\n" +
+		"1\\. [First Heading](#first-heading)<br>\n" +
+		"&nbsp;&nbsp;&nbsp;1\\.1. [First Sub-heading](#first-sub-heading)<br>\n" +
+		"2\\. [Second Heading](#second-heading)<br>\n" +
+		"3\\. [Third Heading](#third-heading)<br>\n" +
 		"\n" + backToTopLink + "\n" +
 		"\n" + tocEndMarker
 
@@ -104,8 +104,8 @@ Second setup section.
 	}
 
 	expectedEntries := []string{
-		"1. [Setup](#setup)\n",
-		"2. [Setup](#setup-1)\n",
+		"1\\. [Setup](#setup)<br>\n",
+		"2\\. [Setup](#setup-1)<br>\n",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(toc, entry) {
@@ -290,16 +290,16 @@ func TestGenerateIndentNormalization(t *testing.T) {
 	}
 
 	expectedEntries := []string{
-		"1. [Section One](#section-one)\n",
-		"   1. [Subsection](#subsection)\n",
-		"2. [Section Two](#section-two)\n",
+		"1\\. [Section One](#section-one)<br>\n",
+		"&nbsp;&nbsp;&nbsp;1\\.1. [Subsection](#subsection)<br>\n",
+		"2\\. [Section Two](#section-two)<br>\n",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(toc, entry) {
 			t.Errorf("TOC should contain entry %q when document starts at level 2, got: %s", entry, toc)
 		}
 	}
-	if strings.Contains(toc, "      1. [Subsection]") {
+	if strings.Contains(toc, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1\\.1. [Subsection]") {
 		t.Error("indentation should be normalized relative to the document's minimum heading level")
 	}
 }
