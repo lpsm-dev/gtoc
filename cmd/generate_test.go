@@ -63,10 +63,10 @@ func TestGenerateCommandUpdatesFile(t *testing.T) {
 	}
 
 	expectedEntries := []string{
-		"1. [First Heading](#first-heading)",
-		"   1. [First Sub-heading](#first-sub-heading)",
-		"2. [Second Heading](#second-heading)",
-		"3. [Third Heading](#third-heading)",
+		"1\\. [First Heading](#first-heading)",
+		"&nbsp;&nbsp;&nbsp;1\\.1. [First Sub-heading](#first-sub-heading)",
+		"2\\. [Second Heading](#second-heading)",
+		"3\\. [Third Heading](#third-heading)",
 	}
 	for _, entry := range expectedEntries {
 		if !strings.Contains(content, entry) {

@@ -66,25 +66,42 @@ func (g *Generator) Generate() (string, error) {
 	return sb.String(), nil
 }
 
-// renderEntries renders the TOC as a numbered (ordered) list. Numbering is
-// per level and restarts whenever a deeper level is re-entered, so nested
-// sub-sections read 1., 2., ... under their parent. Ordered-list items are
-// indented three spaces per level so GitHub renders the nesting correctly.
+// renderEntries renders the TOC as a hierarchical dotted outline: every
+// heading carries its full path number (# -> 1, ## -> 1.1, ### -> 1.1.1),
+// reflecting the heading depth. GitHub markdown has no native "1.1." list
+// marker, so entries are emitted as escaped literal text - the leading dot is
+// backslash-escaped so the line is not parsed as an ordered list - indented
+// with &nbsp; per level and separated with <br> so each entry keeps its own
+// line in a rendered README.
 func renderEntries(headings []*Heading, minLevel int) string {
 	var sb strings.Builder
-	counters := make(map[int]int)
+	var counters []int
 	for _, heading := range headings {
 		rel := heading.Level - minLevel
-		for deeper := range counters {
-			if deeper > rel {
-				delete(counters, deeper)
+		if rel < len(counters) {
+			counters = counters[:rel+1]
+		} else {
+			for len(counters) <= rel {
+				counters = append(counters, 0)
 			}
 		}
 		counters[rel]++
-		indent := strings.Repeat("   ", rel)
-		sb.WriteString(fmt.Sprintf("%s%d. [%s](#%s)\n", indent, counters[rel], heading.Text, heading.Anchor))
+
+		marker := strings.Replace(dottedNumber(counters)+".", ".", `\.`, 1)
+		indent := strings.Repeat("&nbsp;", 3*rel)
+		sb.WriteString(fmt.Sprintf("%s%s [%s](#%s)<br>\n", indent, marker, heading.Text, heading.Anchor))
 	}
 	return sb.String()
+}
+
+// dottedNumber joins the per-level counters into a dotted path such as
+// "1", "1.2", or "1.2.1".
+func dottedNumber(counters []int) string {
+	parts := make([]string, len(counters))
+	for i, c := range counters {
+		parts[i] = fmt.Sprintf("%d", c)
+	}
+	return strings.Join(parts, ".")
 }
 
 // minHeadingLevel returns the smallest heading level present in headings, or
