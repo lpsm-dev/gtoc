@@ -104,6 +104,104 @@ func dottedNumber(counters []int) string {
 	return strings.Join(parts, ".")
 }
 
+// existingNumberPrefix matches a leading outline number ("1. ", "1.2. ", ...)
+// so re-numbering headings is idempotent.
+var existingNumberPrefix = regexp.MustCompile(`^\d+(\.\d+)*\.\s+`)
+
+// headingLine records where a heading sits in the document and its clean text
+// (with any existing outline number stripped).
+type headingLine struct {
+	index int
+	level int
+	text  string
+}
+
+// GenerateNumberedFile rewrites the document so every heading carries its
+// hierarchical outline number (# -> "1.", ## -> "1.1.", ### -> "1.1.1.") and
+// returns the full updated file content, including a refreshed TOC that links
+// to the numbered headings. Numbering is idempotent: an existing number on a
+// heading is stripped and recomputed.
+func (g *Generator) GenerateNumberedFile() (string, error) {
+	raw, err := os.ReadFile(g.targetFile)
+	if err != nil {
+		return "", err
+	}
+	lines := strings.Split(string(raw), "\n")
+
+	found := g.collectHeadingLines(lines)
+	minLevel := 1
+	for i, h := range found {
+		if i == 0 || h.level < minLevel {
+			minLevel = h.level
+		}
+	}
+
+	anchorCounts := map[string]int{}
+	var counters []int
+	headings := make([]*Heading, 0, len(found))
+	for _, h := range found {
+		rel := h.level - minLevel
+		if rel < len(counters) {
+			counters = counters[:rel+1]
+		} else {
+			for len(counters) <= rel {
+				counters = append(counters, 0)
+			}
+		}
+		counters[rel]++
+
+		numberedText := dottedNumber(counters) + ". " + h.text
+		anchor := uniqueAnchor(createAnchor(numberedText), anchorCounts)
+		lines[h.index] = strings.Repeat("#", h.level) + " " + numberedText
+		headings = append(headings, &Heading{Level: h.level, Text: numberedText, Anchor: anchor})
+	}
+
+	numbered := strings.Join(lines, "\n")
+	return g.GetFileWithUpdatedTOC(numbered, buildNumberedTOC(headings, minLevel)), nil
+}
+
+// collectHeadingLines returns every heading line eligible for numbering,
+// skipping fenced code blocks and existing TOC blocks and stripping any
+// existing outline number so re-runs stay stable.
+func (g *Generator) collectHeadingLines(lines []string) []headingLine {
+	var out []headingLine
+	filter := &lineFilter{}
+	for i, line := range lines {
+		if filter.skip(line) {
+			continue
+		}
+		matches := headingPattern.FindStringSubmatch(line)
+		if len(matches) <= 2 {
+			continue
+		}
+		level := len(matches[1])
+		if g.maxDepth > 0 && level > g.maxDepth {
+			continue
+		}
+		text := existingNumberPrefix.ReplaceAllString(strings.TrimSpace(matches[2]), "")
+		if g.isExcluded(text) {
+			continue
+		}
+		out = append(out, headingLine{index: i, level: level, text: text})
+	}
+	return out
+}
+
+// buildNumberedTOC lists already-numbered headings. Because the number is part
+// of each heading (and thus the link text), entries are plain links indented
+// with &nbsp; per level and broken with <br> - no escaping is needed.
+func buildNumberedTOC(headings []*Heading, minLevel int) string {
+	var sb strings.Builder
+	sb.WriteString(tocStartMarker + "\n\n")
+	for _, h := range headings {
+		indent := strings.Repeat("&nbsp;", 3*(h.Level-minLevel))
+		sb.WriteString(fmt.Sprintf("%s[%s](#%s)<br>\n", indent, h.Text, h.Anchor))
+	}
+	sb.WriteString("\n" + backToTopLink + "\n")
+	sb.WriteString("\n" + tocEndMarker)
+	return sb.String()
+}
+
 // minHeadingLevel returns the smallest heading level present in headings, or
 // 1 when there are no headings. This is used to normalize indentation so a
 // document that starts at ## renders its top-level entries with no indent.
