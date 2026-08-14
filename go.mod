@@ -2,7 +2,7 @@ module github.com/lpsm-dev/gtoc
 
 go 1.25.8
 
-toolchain go1.26.5
+toolchain go1.26.6
 
 require (
 	charm.land/glamour/v2 v2.0.1
